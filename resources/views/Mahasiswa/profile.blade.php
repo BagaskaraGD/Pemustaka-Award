@@ -150,4 +150,8 @@
     </script>
     <script src="{{ asset('js/challengecount.js') }}"></script>
     <script src="{{ asset('js/profileuser.js') }}"></script>
+    {{-- <script>
+        console.log(idCivitas);
+        const apiUrl = `http://127.0.0.1:8000/api/rekap-poin/${idCivitas}/`;
+    </script> --}}
 @endsection
