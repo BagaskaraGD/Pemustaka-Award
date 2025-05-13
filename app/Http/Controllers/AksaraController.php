@@ -57,6 +57,8 @@ class AksaraController extends Controller
 
         $newId = $lastId + 1;
 
+        //dd($newId);
+
         // $lastIdb = DB::connection('oracle')
         //     ->table('AKSARA_DINAMIKA')
         //     ->max('ID_BUKU');

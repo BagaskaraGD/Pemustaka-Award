@@ -55,7 +55,7 @@
                     <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">{{ $top['nim'] }}</p>
                     <div class="flex items-center space-x-2 ml-8">
                         <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                        <p class="text-md font-russo">{{ $top['rekap_jumlah'] }}</p>
+                        <p class="text-md font-russo">{{ $top['total_rekap_poin'] }}</p>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                             <td class="p-3 text-center font-russo text-[rgba(31,76,109,1)]">
                                 <div class="flex items-center justify-center space-x-2">
                                     <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                                    <span>{{ $user['rekap_jumlah'] ?? 0 }}</span>
+                                    <span>{{ $user['total_rekap_poin'] ?? 0 }}</span>
                                 </div>
                             </td>
                         </tr>

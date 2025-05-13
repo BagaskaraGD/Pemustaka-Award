@@ -1,45 +1,46 @@
 @extends('layouts.app')
 
 @section('content')
+    <h2 class="text-3xl font-bold font-rubik mb-5">Kegiatan</h2>
 
-        <h2 class="text-3xl font-bold font-rubik mb-5">Kegiatan</h2>
 
-
-    <!-- Input Kode dan Tombol -->
-    <div class="flex items-center mb-4">
-        <input type="text" placeholder="Kode" class="border p-2 rounded-l-md w-64 font-rubik font-semibold">
-        <button class="bg-blue-500 text-white h-10 flex rounded-r-md font-semibold font-rubik items-center justify-center px-4 -ml-1">
+    <form action="{{ route('kehadiran.store') }}" method="POST" class="flex items-center mb-4">
+        @csrf
+        <input type="text" name="kode" placeholder="Kode" class="border p-2 rounded-l-md w-64 font-rubik font-semibold"
+            id="koderandom">
+        <button type="submit"
+            class="bg-blue-500 text-white h-10 flex rounded-r-md font-semibold font-rubik items-center justify-center px-4 -ml-1">
             <span class="mr-2">+</span> Add Kegiatan
         </button>
-        <a href="/riwayatkegiatan-mhs" class="bg-white border px-4 py-2 rounded-md font-semibold font-rubik flex items-center ml-2">
-            <span class="mr-2">&#x1F504;</span> Riwayat
-        </a>
+    </form>
+
+    <!-- Table Riwayat Kegiatan -->
+    <div class="overflow-hidden rounded-b-[25px] w-full bg-white">
+        <table class="w-full text-gray-700 border-collapse">
+            <thead class="p-0">
+                <tr class="bg-white border-t border-gray-300">
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Judul Kegiatan</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Tanggal Kegiatan</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Jam Kegiatan</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Pemateri</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Media/Lokasi Kegiatan</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Poin</th>
+                    <th class="p-3 font-rubik text-center border-t border-gray-300">Cetak</th>
+                </tr>
+            </thead>
+            <tbody id="mykehadirantable">
+                <!-- Akan diisi dari JavaScript -->
+            </tbody>
+        </table>
     </div>
 
-    <!-- Daftar Kegiatan -->
-    <div class="space-y-4">
-        <!-- Item 1: Sedang Berlangsung -->
-        <div class="bg-white shadow-md p-4 rounded-md flex justify-between items-center relative">
-            <div>
-                <p class="font-medium font-rubik">Seminar</p>
-                <p class="text-gray-600 text-sm font-medium font-rubik">10 Feb 2025</p>
-            </div>
-            <div class="text-gray-500 text-sm flex items-center font-medium font-rubik">
-                Sedang Berlangsung
-                <span class="w-2 h-2 bg-gray-400 rounded-full ml-2"></span>
-            </div>
-        </div>
-
-        <!-- Item 2: Selesai -->
-        <div class="bg-white shadow-md p-4 rounded-md flex justify-between items-center relative border-b-4 border-green-500">
-            <div>
-                <p class="font-medium font-rubik">Seminar</p>
-                <p class="text-gray-600 text-sm font-medium font-rubik">15 Jan 2025</p>
-            </div>
-            <div class="text-green-600 text-sm flex items-center font-medium font-rubik">
-                Selesai
-                <span class="w-2 h-2 bg-green-500 rounded-full ml-2"></span>
-            </div>
-        </div>
+    <!-- Total Poin -->
+    <div class="flex justify-end mt-4 font-rubik">
+        <div class="bg-gray-100 px-6 py-3 rounded-lg shadow-md font-semibold">Total Poin: <span id="totalpoin"></span></div>
     </div>
+    <script>
+        const idCivitas = "{{ session('civitas')['id_civitas'] }}";
+    </script>
+    <script src="{{ asset('js/kehadiran.js') }}"></script>
+    <script src="{{ asset('js/kegiatancount.js') }}"></script>
 @endsection

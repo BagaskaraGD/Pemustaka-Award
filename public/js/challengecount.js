@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("Jumlah tantangan:", data.count); // DEBUG
 
                 // Sekarang kirimkan data tersebut ke API kedua
-                const apiUrlPut = `http://127.0.0.1:8000/api/rekap-poin/${idCivitas}/${data.count}`;
+                const apiUrlPut = `http://127.0.0.1:8000/api/rekap-poin/aksara/${idCivitas}/${data.count}`;
 
                 fetch(apiUrlPut, {
                     method: "PUT", // Menggunakan PUT request

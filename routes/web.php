@@ -39,6 +39,8 @@ Route::get('/karyawan/search', [AksaraController::class, 'karyawan_search'])->na
 Route::post('/review', [AksaraController::class, 'store'])->name('review.store');
 Route::get('/periode/dropdown', [LeaderboardController::class, 'viewdropdownperiode'])->name('dropdown.periode');
 
+Route::post('/kegiatan/store', [KegiatanController::class, 'storekehadiran'])->name('kehadiran.store');
+
 
 Route::get('/', function () {
     return view('welcome');

@@ -16,6 +16,8 @@ class LeaderboardController extends Controller
 
         $top5 = array_slice($data, 0, 5); // hanya ambil 5 teratas
 
+        //dd($top5);
+
         return view('Mahasiswa.leaderboard', compact('top5'));
     }
     public function viewLeaderboard2()

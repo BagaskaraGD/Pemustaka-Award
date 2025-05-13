@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const result = await response.json();
         const rankData = result.count[0];
-        const userPoints = rankData.rekap_jumlah; // Ambil rekap_jumlah poin dari API response
+        const userPoints = rankData.total_rekap_poin; // Ambil rekap_jumlah poin dari API response
         console.log("DATA API:", userPoints); //DEBUG
         const nim = rankData.nim;
         const peringkat = rankData.peringkat;

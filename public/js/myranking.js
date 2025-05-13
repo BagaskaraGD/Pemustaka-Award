@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td class="p-3 text-center font-russo text-white">
                         <div class="flex items-center justify-center space-x-2">
                             <img src="/assets/images/Poin.png" alt="Poin Icon" class="w-5 h-5">
-                            <span>${user.rekap_jumlah}</span>
+                            <span>${user.total_rekap_poin}</span>
                         </div>
                     </td>
                 `;

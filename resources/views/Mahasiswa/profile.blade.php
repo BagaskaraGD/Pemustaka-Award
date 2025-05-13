@@ -89,7 +89,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500 font-rubik">Kegiatan</p>
-                    <p class="text-3xl font-bold font-russo text-[#1F4C6D]">0</p>
+                    <p id="kegiatan-count" class="text-3xl font-bold font-russo text-[#1F4C6D]" >0</p>
 
                 </div>
 
@@ -149,6 +149,7 @@
         const idCivitas = "{{ session('civitas')['id_civitas'] }}";
     </script>
     <script src="{{ asset('js/challengecount.js') }}"></script>
+    <script src="{{ asset('js/kegiatancount.js') }}"></script>
     <script src="{{ asset('js/profileuser.js') }}"></script>
     {{-- <script>
         console.log(idCivitas);
