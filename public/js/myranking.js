@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const tableBody = document.getElementById("myRankingTableBody");
             tableBody.innerHTML = "";
 
-            const user = data.count?.[0];  // Akses user pertama dari array "count"
+            const user = data.data;
+            console.log("DATA data:", user)  // Akses user pertama dari array "count"
 
             if (user) {
                 const row = document.createElement("tr");

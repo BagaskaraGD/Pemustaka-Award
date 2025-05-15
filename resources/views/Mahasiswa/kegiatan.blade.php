@@ -42,5 +42,5 @@
         const idCivitas = "{{ session('civitas')['id_civitas'] }}";
     </script>
     <script src="{{ asset('js/kehadiran.js') }}"></script>
-    <script src="{{ asset('js/kegiatancount.js') }}"></script>
+    
 @endsection

@@ -88,6 +88,8 @@
             @yield('content')
         </main>
     </div>
+    <script src="{{ asset('js/kegiatanrekap.js') }}"></script>
+    <script src="{{ asset('js/challengerekap.js') }}"></script>
 </body>
 
 
