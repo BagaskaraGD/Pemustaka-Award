@@ -1,168 +1,219 @@
-// aksaramodal.js
+// public/js/aksaramodal.js
 
-// Fungsi untuk membuka modal informasi umum (modal besar berisi 4 poin)
+// Fungsi untuk membuka modal informasi umum (yang sudah ada)
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
 }
 
-// Fungsi untuk menutup modal informasi umum
+// Fungsi untuk menutup modal informasi umum (yang sudah ada)
 function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
-// Variabel global untuk menyimpan ID item Aksara Dinamika yang sedang dibuka modal 'ditolak'
-let currentItemIdToFix = null;
-// Variabel global untuk menyimpan ID Civitas (ID pengguna) yang sedang login
+// Variabel global untuk menyimpan ID Aksara Dinamika dan Civitas yang sedang aktif
+let currentAksaraDinamikaId = null;
 let currentCivitasId = null;
 
 /**
- * Fungsi untuk membuka modal Status Ditolak/Diterima dan memuat histori review.
- * @param {string} message - Pesan utama yang akan ditampilkan di modal.
- * @param {string} keteranganAdmin - Keterangan terakhir dari admin.
- * @param {string} itemId - ID unik dari entri Aksara Dinamika yang sedang dilihat.
- * @param {string} civitasId - ID unik dari civitas (pengguna) yang sedang login.
+ * Fungsi untuk membuka modal riwayat (ditolak/diterima) dan menampilkan histori review.
+ * @param {string} judulBuku - Judul buku yang terkait dengan pengajuan.
+ * @param {string} status - Status pengajuan ('ditolak' atau 'diterima').
+ * @param {string} adminKeterangan - Keterangan terakhir dari admin.
+ * @param {string} aksaraDinamikaId - ID Aksara Dinamika.
+ * @param {string} civitasId - ID Civitas (NIM mahasiswa).
  */
-async function openDitolakModal(message, keteranganAdmin, itemId, civitasId) {
-    // Setel teks pesan utama dan keterangan admin di modal
-    document.getElementById("ditolakMessage").innerText = message;
-    document.getElementById("adminKeterangan").innerText = keteranganAdmin;
+async function openHistoryModal(
+    judulBuku,
+    status,
+    adminKeterangan,
+    aksaraDinamikaId,
+    civitasId
+) {
+    const modal = document.getElementById("ditolakModal");
+    const modalTitle = modal.querySelector("h2");
+    const ditolakMessage = document.getElementById("ditolakMessage");
+    const adminKeteranganContainer = document.getElementById(
+        "adminKeteranganContainer"
+    ); // Mengambil container keterangan admin
+    const adminKeteranganText = document.getElementById("adminKeterangan");
+    const perbaikiButton = document.getElementById("perbaikiButton");
+    const reviewHistoryItems = document.getElementById("reviewHistoryItems"); // Mengambil div tempat item histori akan ditambahkan
 
-    // Simpan ID ke variabel global untuk digunakan oleh fungsi lain (misal: tombol 'Perbaiki')
-    currentItemIdToFix = itemId;
+    // Simpan ID yang diterima dari Blade ke variabel global
+    currentAksaraDinamikaId = aksaraDinamikaId;
     currentCivitasId = civitasId;
+    console.log("ID Aksara Dinamika (Global):", currentAksaraDinamikaId);
+    console.log("ID Civitas (Global):", currentCivitasId);
 
-    // Untuk debugging, bisa dihapus setelah yakin ID sudah terkirim dengan benar
-    console.log("ID Aksara Dinamika (itemId):", itemId);
-    console.log("ID Civitas (currentCivitasId):", civitasId);
+    // Bersihkan konten riwayat sebelumnya (hanya item histori, garis vertikal tetap ada di HTML)
+    reviewHistoryItems.innerHTML = "";
 
-    const timelineContainer = document.getElementById("reviewHistoryTimeline");
+    // --- Atur konten modal berdasarkan status yang diterima ---
+    if (status === "ditolak") {
+        modalTitle.textContent = "Status Ditolak"; // Judul modal
+        modalTitle.classList.remove("text-green-600");
+        modalTitle.classList.add("text-red-600");
+        modalTitle.classList.remove("border-green-200");
+        modalTitle.classList.add("border-red-200");
 
-    // Bersihkan konten histori review sebelumnya dan tampilkan pesan loading
-    timelineContainer.innerHTML = `
-        <div class="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
-        <p class="text-sm text-gray-500 ml-6">Memuat histori review...</p>
-    `;
+        ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" ditolak. Mohon periksa kembali persyaratan atau hubungi admin.`;
+        adminKeteranganContainer.classList.remove("hidden"); // Tampilkan div keterangan admin
+        adminKeteranganText.textContent =
+            adminKeterangan || "Tidak ada keterangan dari admin."; // Tampilkan keterangan atau pesan default
+        perbaikiButton.classList.remove("hidden"); // Tampilkan tombol "Perbaiki"
+    } else if (status === "diterima") {
+        modalTitle.textContent = "Status Diterima"; // Judul modal
+        modalTitle.classList.remove("text-red-600");
+        modalTitle.classList.add("text-green-600");
+        modalTitle.classList.remove("border-red-200");
+        modalTitle.classList.add("border-green-200");
 
-    // Tampilkan modal terlebih dahulu untuk user experience yang lebih baik
-    document.getElementById("ditolakModal").classList.remove("hidden");
-
-    try {
-        // Lakukan fetch data histori status dari API
-        // Pastikan URL menggunakan itemId dan civitasId yang valid
-        const response = await fetch(
-            `http://127.0.0.1:8000/api/histori-status/${civitasId}/${itemId}`
+        ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" telah diterima.`;
+        adminKeteranganContainer.classList.add("hidden"); // Sembunyikan div keterangan admin
+        perbaikiButton.classList.add("hidden"); // Sembunyikan tombol "Perbaiki"
+    } else {
+        console.warn(
+            "openHistoryModal dipanggil dengan status yang tidak diharapkan:",
+            status
         );
+        return; // Jangan buka modal jika status tidak ditolak atau diterima
+    }
 
+    // --- Mengambil dan Menampilkan Riwayat Review dari API ---
+    try {
+        // Lakukan permintaan (fetch) ke endpoint API di backend Anda
+        const response = await fetch(
+            `http://127.0.0.1:8000/api/histori-status/${civitasId}/${aksaraDinamikaId}`
+        );
         if (!response.ok) {
-            // Jika respons API tidak sukses (misal: 404, 500), lemparkan error
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const apiResponse = await response.json(); // Ubah respons menjadi JSON
+        const historyData = apiResponse.data; // Ambil array data dari properti 'data'
 
-        const apiData = await response.json();
-        // Ambil array data histori, jika tidak ada, gunakan array kosong
-        const reviewHistory = apiData.data || [];
+        console.log("Data histori review dari API:", historyData);
 
-        // Bersihkan konten loading setelah data berhasil diambil
-        timelineContainer.innerHTML =
-            '<div class="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>';
+        if (historyData && historyData.length > 0) {
+            historyData.forEach((entry) => {
+                const itemDiv = document.createElement("div");
+                itemDiv.classList.add("relative", "mb-4", "pb-4"); // Memberikan posisi relatif untuk titik timeline di dalamnya
 
-        // Cek apakah ada data histori review yang diambil dari API
-        if (reviewHistory.length > 0) {
-            // Urutkan histori berdasarkan tanggal status dari yang terbaru ke terlama
-            // (Opsional, tapi seringkali lebih baik untuk histori)
-            reviewHistory.sort((a, b) => new Date(b.tgl_status) - new Date(a.tgl_status));
-
-            reviewHistory.forEach((entry) => {
-                let statusClass = "";
-                // Pastikan entry.status ada dan ubah ke lowercase untuk perbandingan
-                const status = (entry.status || "").toLowerCase();
-
-                // Tentukan warna berdasarkan status
-                switch (status) {
-                    case "diterima":
-                        statusClass = "bg-green-500";
-                        break;
-                    case "ditolak":
-                        statusClass = "bg-red-500";
-                        break;
-                    case "menunggu":
-                        statusClass = "bg-yellow-500";
-                        break;
-                    default:
-                        statusClass = "bg-gray-400"; // Warna default jika status tidak dikenali
+                // Titik di timeline
+                const dot = document.createElement("div");
+                // Kelas `absolute` dan `-left-4` (atau nilai lain yang sesuai) akan memposisikan titik
+                // di luar kontainer item, sejajar dengan garis vertikal utama.
+                // Anda mungkin perlu menyesuaikan `-left-4` sedikit tergantung pada CSS Anda.
+                dot.classList.add(
+                    "absolute",
+                    "-left-4",
+                    "top-0",
+                    "w-3",
+                    "h-3",
+                    "rounded-full",
+                    "border-2",
+                    "bg-white",
+                    "z-10"
+                );
+                if (entry.status === "ditolak") {
+                    dot.classList.add("border-red-500", "bg-red-200");
+                } else if (entry.status === "diterima") {
+                    dot.classList.add("border-green-500", "bg-green-200");
+                } else {
+                    dot.classList.add("border-gray-500", "bg-gray-200");
                 }
 
-                // Format tanggal agar lebih rapi (opsional)
-                const formattedDate = entry.tgl_status ? new Date(entry.tgl_status).toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) : "Tanggal tidak tersedia";
+                // Konten item timeline
+                const contentDiv = document.createElement("div");
+                // Hapus `ml-6` di sini karena `pl-6` sudah ada pada parent `relative pl-6` di HTML.
+                contentDiv.classList.add(
+                    "p-3",
+                    "bg-gray-100",
+                    "rounded-lg",
+                    "shadow-sm",
+                    "border",
+                    "border-gray-200"
+                );
 
-
-                // Buat elemen timeline item menggunakan template literals
-                const timelineItem = `
-                    <div class="relative mb-6 flex items-start">
-                        <div class="absolute left-0 top-1.5 w-3 h-3 ${statusClass} rounded-full z-10 -ml-1"></div>
-                        <div class="ml-6 flex-grow">
-                            <p class="font-semibold text-sm text-gray-800">${formattedDate}</p>
-                            <p class="text-sm text-gray-600">
-                                <span class="font-bold uppercase">${status}</span>: ${
-                    entry.keterangan || "Tidak ada keterangan."
+                const statusP = document.createElement("p");
+                statusP.classList.add("font-semibold", "text-lg");
+                if (entry.status === "ditolak") {
+                    statusP.classList.add("text-red-700");
+                } else if (entry.status === "diterima") {
+                    statusP.classList.add("text-green-700");
+                } else {
+                    statusP.classList.add("text-gray-700");
                 }
-                            </p>
-                        </div>
-                    </div>
-                `;
-                // Tambahkan item ke dalam container timeline
-                timelineContainer.insertAdjacentHTML("beforeend", timelineItem);
+                statusP.textContent = `Status: ${
+                    entry.status.charAt(0).toUpperCase() + entry.status.slice(1)
+                }`;
+
+                const dateP = document.createElement("p");
+                dateP.classList.add("text-sm", "text-gray-600", "mt-1");
+                // Pastikan menggunakan nama properti tanggal yang benar dari respons API Anda (`tgl_status`)
+                dateP.textContent = `Tanggal: ${new Date(
+                    entry.tgl_status
+                ).toLocaleString("id-ID")}`;
+
+                // Tampilkan keterangan hanya jika ada dan bukan string kosong
+                if (
+                    entry.keterangan &&
+                    entry.keterangan.trim() !== "" &&
+                    entry.keterangan !== "Tidak ada keterangan dari admin."
+                ) {
+                    const keteranganP = document.createElement("p");
+                    keteranganP.classList.add(
+                        "text-base",
+                        "text-gray-800",
+                        "mt-2"
+                    );
+                    keteranganP.textContent = `Keterangan: ${entry.keterangan}`;
+                    contentDiv.appendChild(keteranganP);
+                }
+
+                contentDiv.appendChild(statusP);
+                contentDiv.appendChild(dateP);
+                itemDiv.appendChild(dot);
+                itemDiv.appendChild(contentDiv);
+                reviewHistoryItems.appendChild(itemDiv); // Tambahkan item ke div histori item
             });
         } else {
-            // Jika tidak ada histori review
-            timelineContainer.insertAdjacentHTML(
-                "beforeend",
-                '<p class="text-sm text-gray-500 ml-6">Tidak ada histori review.</p>'
-            );
+            // Jika tidak ada data histori, tampilkan pesan
+            reviewHistoryItems.innerHTML +=
+                '<p class="ml-0 text-gray-500">Tidak ada histori review untuk pengajuan ini.</p>';
         }
     } catch (error) {
-        // Tangani error jika gagal mengambil histori review
         console.error("Gagal mengambil histori review:", error);
-        timelineContainer.innerHTML = `
-            <div class="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
-            <p class="text-sm text-red-500 ml-6">Gagal memuat histori. Coba lagi nanti.</p>
-        `;
+        reviewHistoryItems.innerHTML +=
+            '<p class="ml-0 text-red-500">Gagal memuat histori review. Silakan coba lagi.</p>';
     }
+
+    // Tampilkan modal setelah kontennya siap
+    modal.classList.remove("hidden");
 }
 
-// Fungsi untuk menutup modal Status Ditolak
+// Fungsi untuk menutup modal riwayat
 function closeDitolakModal() {
     document.getElementById("ditolakModal").classList.add("hidden");
-    // Reset ID item agar tidak ada data lama yang tersimpan
-    currentItemIdToFix = null;
-    currentCivitasId = null;
 }
 
 // Fungsi yang dipanggil saat tombol "Perbaiki" diklik
 function handlePerbaikiClick() {
-    if (currentItemIdToFix) {
-        // Redirect ke halaman edit dengan ID Aksara Dinamika yang relevan
-        window.location.href = `/formaksaradinamika-mhs/edit/${currentItemIdToFix}`;
+    // Pastikan ID Aksara Dinamika dan Civitas ada
+    if (currentAksaraDinamikaId && currentCivitasId) {
+        // Redirect ke halaman perbaikan, sertakan ID sebagai parameter
+        window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}?civitas_id=${currentCivitasId}`;
     } else {
-        alert("Tidak ada item yang dipilih untuk diperbaiki.");
+        alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
     }
 }
 
-// Fungsi filterTable (opsional, bisa tetap di sini atau dipindahkan ke file lain jika mau)
-// Fungsi ini berfungsi untuk mencari/filter data di dalam tabel
+// Fungsi filterTable
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
-    const rows = document.querySelectorAll("#dataTable tr"); // Dapatkan semua baris data di tabel
+    const rows = document.querySelectorAll("#dataTable tr");
 
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase(); // Ambil semua teks dari baris
-        // Jika teks baris mengandung input pencarian, tampilkan barisnya, jika tidak, sembunyikan
+    rows.forEach((row) => {
+        const text = row.textContent.toLowerCase();
         row.style.display = text.includes(input) ? "" : "none";
     });
 }
