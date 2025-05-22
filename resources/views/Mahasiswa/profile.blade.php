@@ -7,7 +7,10 @@
             <div
                 class="absolute left-0 top-0 w-3/5 h-36 bg-[#1F4C6D] rounded-tr-full rounded-br-full transform z-0 drop-shadow-[2px_6px_20px_rgba(0,0,0,0.5)] flex items-center px-6">
                 <!-- Profil Lingkaran -->
-                <div class="w-20 h-20 bg-gray-400 rounded-full ml-5"></div>
+                <div class="w-20 h-20 bg-[#1F4C6D] rounded-full ml-5">
+                    <img src="{{ asset(session('foto_profil')) }}" alt="User Profile"
+                            class="w-full h-full object-cover rounded-full border-4 border-[rgba(251,195,77,1)]">
+                </div>
 
                 <!-- Informasi User -->
                 <div class="ml-4 flex flex-col justify-center h-20">
@@ -61,7 +64,7 @@
                     <div class="absolute inset-0 bg-gray-300 rounded-full"></div>
 
                     <!-- Progress fill (akan diisi oleh JavaScript) -->
-                    <div id="progress-fill" class="bg-[#1F4C6D] h-7 rounded-full absolute left-0 top-0 w-0"></div>
+                    <div id="progress-fill" class="bg-[#1F4C6D] h-7 rounded-full absolute left-0 top-0 w-0 transition-[width] duration-1000 ease-out"></div>
 
                     <!-- Progress indicator -->
                     <div id="progress-indicator"

@@ -43,8 +43,8 @@
                 <div class="text-center">
                     <div class="relative w-36 h-36 mx-auto">
                         <!-- Foto Profil -->
-                        <img src="assets/images/profile.png" alt="User Profile"
-                            class="w-full h-full object-cover rounded-full border-4 border-[rgba(251,195,77,1)] bg-gray-300">
+                        <img src="{{ asset(session('foto_profil')) }}" alt="User Profile"
+                            class="w-full h-full object-cover rounded-full border-4 border-[rgba(251,195,77,1)]">
 
                         <!-- Badge Peringkat -->
                         <div
@@ -52,10 +52,11 @@
                             1st
                         </div>
                     </div>
+                    <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">{{ $top['nama'] }}</p>
                     <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">{{ $top['nim'] }}</p>
-                    <div class="flex items-center space-x-2 ml-8">
-                        <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                        <p class="text-md font-russo">{{ $top['total_rekap_poin'] }}</p>
+                    <div class="flex justify-center items-center space-x-2 mt-2">
+                        <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-8 h-8">
+                        <p class="text-lg leading-none font-russo">{{ $top['total_rekap_poin'] }}</p>
                     </div>
                 </div>
             </div>
@@ -129,7 +130,7 @@
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
                 </thead>
-                <tbody id="myRankingTableBody">
+                <tbody onclick="window.location.href='{{ route('profile1') }}'" id="myRankingTableBody">
                     <!-- Akan diisi dari JavaScript -->
                 </tbody>
             </table>

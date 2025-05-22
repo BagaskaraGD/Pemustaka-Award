@@ -36,9 +36,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"  />
 </head>
 
 <body class="bg-gray-200">
+    
     <div class="flex">
         <!-- Sidebar -->
         <aside class="w-64 bg-white p-5 shadow-md h-screen fixed top-0 left-0">
@@ -90,6 +93,10 @@
     </div>
     <script src="{{ asset('js/kegiatanrekap.js') }}"></script>
     <script src="{{ asset('js/challengerekap.js') }}"></script>
+    <script src="{{ asset('js/kunjunganrekap.js') }}"></script>
+    <script src="https://kit.fontawesome.com/a2411311d5.js" crossorigin="anonymous"></script>
+    
+    
 </body>
 
 

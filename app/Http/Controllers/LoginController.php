@@ -29,6 +29,19 @@ class LoginController extends Controller
             //dd($found);
             session(['civitas' => $found]);
             Session::put('nama', $found['nama']);
+            Session::put('status', $found['status']);
+
+            $gender = strtolower($found['jkel'] ?? '');
+            //dd($gender);
+            $foto = 'assets/images/profile.png'; // default
+
+            if ($gender == 'pria') {
+                $foto = 'assets/images/axel.png';
+            } elseif ($gender == 'perempuan') {
+                $foto = 'assets/images/Cyla.png';
+            }
+
+            Session::put('foto_profil', $foto);
 
             if ($found['status'] == 'MHS') {
                 Session::put('status', $found['status']);
@@ -45,6 +58,5 @@ class LoginController extends Controller
         return back()->withErrors([
             'nocivitas' => 'The provided credentials do not match our records.',
         ])->onlyInput('nocivitas');
-
     }
 }

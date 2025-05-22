@@ -40,24 +40,23 @@ class KegiatanController extends Controller
 
         // Cari berdasarkan kode random
         $found = collect($data)->firstWhere('kode_random', $credentials['kode']);
-
         if (!$found) {
             return redirect()->route('kegiatan1')->with('error', 'Kode tidak valid');
         }
-
-        // Cek apakah civitas sudah absen di jadwal ini
-        $sudahAbsen = DB::connection('oracle')
-            ->table('HADIRKEGIATAN_PUST')
-            ->where('ID_JADWAL', $found['id_jadwal'])
-            ->where('NIM', $civitas)
-            ->exists();
+        //dd($request->all());
+        $response = Http::get('http://127.0.0.1:8000/api/hadir-kegiatan/check-kegiatan', [
+            'nim' => $civitas,
+            'id_jadwal' => $found['id_jadwal'],
+        ]);
+         $sudahAbsen = $response->json()['exists'] ?? false;
 
         if ($sudahAbsen) {
             return redirect()->route('kegiatan1')->with('error', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');
         }
 
-        // Generate ID baru
-        $lastId = DB::connection('oracle')->table('HADIRKEGIATAN_PUST')->max('ID_HADIR');
+        $response = Http::get('http://127.0.0.1:8000/api/hadir-kegiatan/last-idhadir');
+
+        $lastId = $response->json()['last_id'] ?? 0;
         $newId = $lastId + 1;
 
         // Kirim data ke API absensi

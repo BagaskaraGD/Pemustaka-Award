@@ -34,7 +34,7 @@ Route::get('/formaksaradinamika-dosen', [AksaraController::class, 'viewFormAksar
 Route::get('/login', [LoginController::class, 'viewLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
-Route::get('/buku/search', [AksaraController::class, 'search'])->name('buku.search');
+Route::get('/search/buku', [AksaraController::class, 'search'])->name('buku.search');
 Route::get('/karyawan/search', [AksaraController::class, 'karyawan_search'])->name('karyawan.search');
 Route::post('/review', [AksaraController::class, 'store'])->name('review.store');
 Route::get('/periode/dropdown', [LeaderboardController::class, 'viewdropdownperiode'])->name('dropdown.periode');
@@ -44,4 +44,8 @@ Route::post('/kegiatan/store', [KegiatanController::class, 'storekehadiran'])->n
 
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+Route::get('/tabel', function () {
+    return view('tabel');
 })->name('home');

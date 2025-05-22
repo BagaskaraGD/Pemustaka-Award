@@ -1,18 +1,18 @@
-$(document).ready(function() {
+$(document).ready(function () {
     $('#kodebuku').select2({
         placeholder: 'Cari Kode Buku...',
         ajax: {
-            url: routeBukuSearch, // Route menuju controller Laravel
+            url: routeBukuSearch,
             dataType: 'json',
             delay: 250,
-            data: function(params) {
+            data: function (params) {
                 return {
                     q: params.term
                 };
             },
-            processResults: function(data) {
+            processResults: function (data) {
                 return {
-                    results: $.map(data, function(item) {
+                    results: $.map(data, function (item) {
                         return {
                             id: item.induk,
                             text: item.induk + ' - ' + item.judul,
@@ -26,9 +26,9 @@ $(document).ready(function() {
         }
     });
 
-    $('#kodebuku').on('select2:select', function(e) {
+    $('#kodebuku').on('select2:select', function (e) {
         var data = e.params.data;
-        $('#judul').val(data.judul); 
-        $('#pengarang').val(data.pengarang.join(', ')); // <- ini dibetulkan
+        $('#judul').val(data.judul);
+        $('#pengarang').val(data.pengarang.join(', '));
     });
 });
