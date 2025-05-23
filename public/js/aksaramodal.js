@@ -205,9 +205,9 @@ function closeDitolakModal() {
 // Fungsi yang dipanggil saat tombol "Perbaiki" diklik
 function handlePerbaikiClick() {
     // Pastikan ID Aksara Dinamika dan Civitas ada
-    if (currentIndukBuku && currentCivitasId) {
+    if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId) {
         // Redirect ke halaman perbaikan, sertakan ID sebagai parameter
-        window.location.href = `/formaksaradinamika-mhs/edit/${currentIndukBuku}?civitas_id=${currentCivitasId}`;
+        window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
     } else {
         alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
     }

@@ -30,6 +30,7 @@ Route::get('/aksara-dosen', [AksaraController::class, 'viewAksaraDinamika2'])->n
 Route::get('/formaksaradinamika-mhs', [AksaraController::class, 'viewFormAksaraDinamika1'])->name('formaksaradinamika1');
 Route::get('/formaksaradinamika-dosen', [AksaraController::class, 'viewFormAksaraDinamika2'])->name('formaksaradinamika2');
 
+Route::get('/formaksaradinamika-mhs/edit/{id}/{induk_buku}/{nim}', [AksaraController::class, 'viewperbaiki'])->name('aksara.edit');
 
 Route::get('/login', [LoginController::class, 'viewLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
@@ -37,6 +38,7 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 Route::get('/search/buku', [AksaraController::class, 'search'])->name('buku.search');
 Route::get('/karyawan/search', [AksaraController::class, 'karyawan_search'])->name('karyawan.search');
 Route::post('/review', [AksaraController::class, 'store'])->name('review.store');
+Route::put('/review/{id_aksara_dinamika}', [AksaraController::class, 'perbaikan'])->name('review.update');
 Route::get('/periode/dropdown', [LeaderboardController::class, 'viewdropdownperiode'])->name('dropdown.periode');
 
 Route::post('/kegiatan/store', [KegiatanController::class, 'storekehadiran'])->name('kehadiran.store');
@@ -49,3 +51,4 @@ Route::get('/', function () {
 Route::get('/tabel', function () {
     return view('tabel');
 })->name('home');
+

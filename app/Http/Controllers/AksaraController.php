@@ -18,23 +18,24 @@ class AksaraController extends Controller
             'review' => 'required',
             'rekomendasi',
             'sosmed',
+            'perbaikan'
         ]);
         //dd($request->all());
-
+        $perbaikan = $request->perbaikan;
         $civitas = session('civitas')['id_civitas'];
         //dd($civitas);
         // Cek apakah nim sudah pernah review buku yang sama (induk_buku)
-        $response = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/check-review', [
-            'nim' => $civitas,
-            'induk_buku' => $request->kodebuku
-        ]);
+        if (!$perbaikan) {
+            $response = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/check-review', [
+                'nim' => $civitas,
+                'induk_buku' => $request->kodebuku
+            ]);
+            $alreadyReviewed = $response->json()['exists'] ?? false;
 
-        $alreadyReviewed = $response->json()['exists'] ?? false;
-
-        if ($alreadyReviewed) {
-            return redirect()->back()->with('failed', true);
+            if ($alreadyReviewed) {
+                return redirect()->back()->with('failed', true);
+            }
         }
-
         $response = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/last-id');
 
         $lastId = $response->json()['last_id'] ?? 0;
@@ -69,6 +70,29 @@ class AksaraController extends Controller
         } else {
             return redirect()->back()->with('failed', true);
         }
+    }
+    public function viewperbaiki(Request $request)
+    {
+        $request->validate([
+            'id',
+            'nim',
+            'induk_buku',
+        ]);
+        $id = $request->id;
+        $nim = $request->nim;
+        $induk_buku = $request->induk_buku;
+        //dd($id, $nim, $induk_buku);
+        $response = Http::get("http://127.0.0.1:8000/api/aksara-dinamika/detail-for-edit/{$id}/{$induk_buku}/{$nim}");
+        if ($response->successful()) {
+            $data = $response->json()['data']; // Ambil langsung 'data' dari hasil JSON
+        } else {
+            $data = []; // Atasi jika API gagal
+        }
+        //dd($data);
+        return view('Mahasiswa/formperbaikanaksara', [
+            'data' => $data,
+            'civitasId' => $nim // Lewatkan id_civitas ke view dengan nama 'civitasId'
+        ]);
     }
     public function viewAksaraDinamika1()
     {
@@ -126,7 +150,7 @@ class AksaraController extends Controller
         ]);
         return response()->json($response->json());
     }
-    public function update(Request $request, $id)
+    public function perbaikan(Request $request, $id)
     {
         $response = Http::put("http://backend-pemustakaaward.test/api/aksara-dinamika/{$id}", $request->all());
 
