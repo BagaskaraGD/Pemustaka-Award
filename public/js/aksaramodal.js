@@ -13,6 +13,7 @@ function closeModal() {
 // Variabel global untuk menyimpan ID Aksara Dinamika dan Civitas yang sedang aktif
 let currentAksaraDinamikaId = null;
 let currentCivitasId = null;
+let currentIndukBuku = null;
 
 /**
  * Fungsi untuk membuka modal riwayat (ditolak/diterima) dan menampilkan histori review.
@@ -21,13 +22,16 @@ let currentCivitasId = null;
  * @param {string} adminKeterangan - Keterangan terakhir dari admin.
  * @param {string} aksaraDinamikaId - ID Aksara Dinamika.
  * @param {string} civitasId - ID Civitas (NIM mahasiswa).
+ * @param {string} indukBuku - ID Induk Buku (jika ada).
  */
 async function openHistoryModal(
     judulBuku,
     status,
     adminKeterangan,
     aksaraDinamikaId,
-    civitasId
+    civitasId,
+    indukBuku
+
 ) {
     const modal = document.getElementById("ditolakModal");
     const modalTitle = modal.querySelector("h2");
@@ -40,10 +44,12 @@ async function openHistoryModal(
     const reviewHistoryItems = document.getElementById("reviewHistoryItems"); // Mengambil div tempat item histori akan ditambahkan
 
     // Simpan ID yang diterima dari Blade ke variabel global
+    currentIndukBuku = indukBuku; // Simpan ID Induk Buku
     currentAksaraDinamikaId = aksaraDinamikaId;
     currentCivitasId = civitasId;
     console.log("ID Aksara Dinamika (Global):", currentAksaraDinamikaId);
     console.log("ID Civitas (Global):", currentCivitasId);
+    console.log("ID Induk Buku (Global):", currentIndukBuku);
 
     // Bersihkan konten riwayat sebelumnya (hanya item histori, garis vertikal tetap ada di HTML)
     reviewHistoryItems.innerHTML = "";
@@ -83,7 +89,7 @@ async function openHistoryModal(
     try {
         // Lakukan permintaan (fetch) ke endpoint API di backend Anda
         const response = await fetch(
-            `http://127.0.0.1:8000/api/histori-status/${civitasId}/${aksaraDinamikaId}`
+            `http://127.0.0.1:8000/api/histori-status/${civitasId}/${indukBuku}`
         );
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -199,9 +205,9 @@ function closeDitolakModal() {
 // Fungsi yang dipanggil saat tombol "Perbaiki" diklik
 function handlePerbaikiClick() {
     // Pastikan ID Aksara Dinamika dan Civitas ada
-    if (currentAksaraDinamikaId && currentCivitasId) {
+    if (currentIndukBuku && currentCivitasId) {
         // Redirect ke halaman perbaikan, sertakan ID sebagai parameter
-        window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}?civitas_id=${currentCivitasId}`;
+        window.location.href = `/formaksaradinamika-mhs/edit/${currentIndukBuku}?civitas_id=${currentCivitasId}`;
     } else {
         alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
     }

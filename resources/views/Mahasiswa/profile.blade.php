@@ -84,11 +84,11 @@
             <div class="grid grid-cols-4 text-center text-lg font-semibold">
                 <div>
                     <p class="text-gray-500 font-rubik">Kunjungan</p>
-                    <p class="text-3xl font-bold font-russo text-[#1F4C6D]">0</p>
+                    <p id="kunjungan-count" class="text-3xl font-bold font-russo text-[#1F4C6D]">0</p>
                 </div>
                 <div>
                     <p class="text-gray-500 font-rubik">Peminjaman</p>
-                    <p class="text-3xl font-bold font-russo text-[#1F4C6D]">0</p>
+                    <p id="pinjaman-count" class="text-3xl font-bold font-russo text-[#1F4C6D]">0</p>
                 </div>
                 <div>
                     <p class="text-gray-500 font-rubik">Kegiatan</p>

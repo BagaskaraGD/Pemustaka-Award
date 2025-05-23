@@ -127,7 +127,8 @@
                                     '{{ strtolower($item['status']) }}', {{-- Status (ditolak/diterima) --}}
                                     '{{ $item['keterangan'] ?? 'Tidak ada keterangan dari admin.' }}', {{-- Keterangan admin (gunakan null coalescing operator) --}}
                                     '{{ $item['id_aksara_dinamika'] }}', {{-- ID Aksara Dinamika --}}
-                                    '{{ $civitasId }}' {{-- ID Civitas --}}
+                                    '{{ $civitasId }}', {{-- ID Civitas --}}
+                                    '{{ $item['induk_buku'] }}', {{-- induk buku --}}
                                 )" @endif>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $item['judul'] }}

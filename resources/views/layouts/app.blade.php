@@ -94,6 +94,7 @@
     <script src="{{ asset('js/kegiatanrekap.js') }}"></script>
     <script src="{{ asset('js/challengerekap.js') }}"></script>
     <script src="{{ asset('js/kunjunganrekap.js') }}"></script>
+    <script src="{{ asset('js/pinjamanrekap.js') }}"></script>
     <script src="https://kit.fontawesome.com/a2411311d5.js" crossorigin="anonymous"></script>
     
     

@@ -9,62 +9,6 @@ use Illuminate\Support\Str;
 
 class AksaraController extends Controller
 {
-    public function viewAksaraDinamika1()
-    {
-        $civitas = session('civitas');
-
-        // Cek apakah session tersedia dan memiliki id_civitas
-        if (!$civitas || !isset($civitas['id_civitas'])) {
-            // Bisa redirect ke login, tampilkan pesan, atau abort
-            return redirect('/login')->with('error', 'Session civitas tidak ditemukan. Silakan login kembali.');
-        }
-
-        $id_civitas = $civitas['id_civitas']; // Ini adalah ID civitas yang akan kita gunakan
-
-        // Panggil API untuk mendapatkan data aksara dinamika milik user tersebut
-        $response = Http::get("http://127.0.0.1:8000/api/aksara-dinamika/aksara-user/{$id_civitas}");
-
-        if ($response->successful()) {
-            $data = $response->json()['data']; // Ambil langsung 'data' dari hasil JSON
-        } else {
-            $data = []; // Atasi jika API gagal
-        }
-
-        // Kirim data aksara dinamika DAN id_civitas ke view
-        return view('Mahasiswa/aksaradinamika', [
-            'data' => $data,
-            'civitasId' => $id_civitas // Lewatkan id_civitas ke view dengan nama 'civitasId'
-        ]);
-    }
-    public function viewAksaraDinamika2()
-    {
-        return view('Dosen/aksaradinamika');
-    }
-    public function viewFormAksaraDinamika1()
-    {
-        return view('Mahasiswa/formaksaradinamika');
-    }
-    public function viewFormAksaraDinamika2()
-    {
-        return view('Dosen/formaksaradinamika');
-    }
-
-
-    public function search()
-    {
-        $response = Http::get('http://127.0.0.1:8000/api/buku/search', [
-            'q' => request('q') // teruskan keyword ke API
-        ]);
-
-        return response()->json($response->json());
-    }
-    public function karyawan_search()
-    {
-        $response = Http::get('http://127.0.0.1:8000/api/karyawan/search', [
-            'q' => request('q') // teruskan keyword ke API
-        ]);
-        return response()->json($response->json());
-    }
     public function store(Request $request)
     {
         $request->validate([
@@ -125,6 +69,62 @@ class AksaraController extends Controller
         } else {
             return redirect()->back()->with('failed', true);
         }
+    }
+    public function viewAksaraDinamika1()
+    {
+        $civitas = session('civitas');
+
+        // Cek apakah session tersedia dan memiliki id_civitas
+        if (!$civitas || !isset($civitas['id_civitas'])) {
+            // Bisa redirect ke login, tampilkan pesan, atau abort
+            return redirect('/login')->with('error', 'Session civitas tidak ditemukan. Silakan login kembali.');
+        }
+
+        $id_civitas = $civitas['id_civitas']; // Ini adalah ID civitas yang akan kita gunakan
+
+        // Panggil API untuk mendapatkan data aksara dinamika milik user tersebut
+        $response = Http::get("http://127.0.0.1:8000/api/aksara-dinamika/aksara-user/{$id_civitas}");
+
+        if ($response->successful()) {
+            $data = $response->json()['data']; // Ambil langsung 'data' dari hasil JSON
+        } else {
+            $data = []; // Atasi jika API gagal
+        }
+
+        // Kirim data aksara dinamika DAN id_civitas ke view
+        return view('Mahasiswa/aksaradinamika', [
+            'data' => $data,
+            'civitasId' => $id_civitas // Lewatkan id_civitas ke view dengan nama 'civitasId'
+        ]);
+    }
+    public function viewAksaraDinamika2()
+    {
+        return view('Dosen/aksaradinamika');
+    }
+    public function viewFormAksaraDinamika1()
+    {
+        return view('Mahasiswa/formaksaradinamika');
+    }
+    public function viewFormAksaraDinamika2()
+    {
+        return view('Dosen/formaksaradinamika');
+    }
+
+
+    public function search()
+    {
+        $response = Http::get('http://127.0.0.1:8000/api/buku/search', [
+            'q' => request('q') // teruskan keyword ke API
+        ]);
+
+        return response()->json($response->json());
+    }
+    public function karyawan_search()
+    {
+        $response = Http::get('http://127.0.0.1:8000/api/karyawan/search', [
+            'q' => request('q') // teruskan keyword ke API
+        ]);
+        return response()->json($response->json());
     }
     public function update(Request $request, $id)
     {
