@@ -36,7 +36,7 @@ class LoginController extends Controller
             $foto = 'assets/images/profile.png'; // default
 
             if ($gender == 'pria') {
-                $foto = 'assets/images/axel.png';
+                $foto = 'assets/images/axelmarah.jpg';
             } elseif ($gender == 'perempuan') {
                 $foto = 'assets/images/Cyla.png';
             }

@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", async function () {
+    console.log("DOM Loaded. Starting profile user script.");
     try {
+        if (typeof idCivitas === "undefined") {
+            console.error("idCivitas is not defined!");
+            return;
+        }
+        console.log("Fetching data for idCivitas:", idCivitas);
+
         const endpoint = `http://127.0.0.1:8000/api/myrank/${idCivitas}`;
         const response = await fetch(endpoint);
 
@@ -9,26 +16,57 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
         const result = await response.json();
+        console.log("API Response:", result);
+
+        if (!result.data) {
+            console.error("API response does not contain 'data'.", result);
+            return;
+        }
+
         const rankData = result.data;
-        const userPoints = rankData.total_rekap_poin; // Ambil rekap_jumlah poin dari API response
-        console.log("DATA API:", userPoints); //DEBUG
+        const userPoints = parseInt(rankData.total_rekap_poin, 10); // Pakai parseInt
         const nim = rankData.nim;
         const peringkat = rankData.peringkat;
 
-        // Tampilkan data ke elemen HTML
+        console.log("User Points (Parsed):", userPoints);
+
         document.getElementById("user").textContent = nim;
         document.getElementById("peringkat").textContent = peringkat;
         document.getElementById("poin").textContent = userPoints;
 
-        // Lanjutkan perhitungan untuk progress bar
         updateProgress(userPoints);
     } catch (error) {
-        console.error("Gagal mengambil data:", error);
+        console.error("Gagal mengambil atau memproses data:", error);
     }
 });
 
+// Fungsi bantuan untuk menampilkan tombol
+function showButton(buttonElement) {
+    if (buttonElement) {
+        buttonElement.classList.remove("hidden");
+        // Beri sedikit waktu agar 'hidden' hilang sebelum transisi opacity
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                buttonElement.classList.remove("opacity-0");
+            }, 10);
+        });
+    } else {
+        console.warn("Attempted to show a button that was not found.");
+    }
+}
+
+// Fungsi bantuan untuk menyembunyikan tombol (jika diperlukan nanti)
+function hideButton(buttonElement) {
+    if (buttonElement) {
+        buttonElement.classList.add("opacity-0");
+        setTimeout(() => {
+            buttonElement.classList.add("hidden");
+        }, 300); // Sesuaikan dengan durasi transisi
+    }
+}
+
 function updateProgress(userPoints) {
-    // Ambil threshold level dari HTML
+    console.log("Updating progress with points:", userPoints);
     const levelElements = document.querySelectorAll(".level-threshold");
     const levelThresholds = {
         0: parseInt(levelElements[0].textContent),
@@ -38,48 +76,74 @@ function updateProgress(userPoints) {
     };
 
     let currentLevel = 0;
-    let progressPercentage = 0;
     let positionPercentage = 0;
 
     if (userPoints >= levelThresholds[3]) {
         currentLevel = 3;
-        progressPercentage = 100;
         positionPercentage = 100;
     } else if (userPoints >= levelThresholds[2]) {
         currentLevel = 2;
-        progressPercentage =
-            ((userPoints - levelThresholds[2]) /
-                (levelThresholds[3] - levelThresholds[2])) *
-            100;
-        positionPercentage = 66 + progressPercentage * 0.33;
+        const range = levelThresholds[3] - levelThresholds[2];
+        const progress =
+            range > 0 ? (userPoints - levelThresholds[2]) / range : 0;
+        positionPercentage = 66.66 + progress * 33.33;
     } else if (userPoints >= levelThresholds[1]) {
         currentLevel = 1;
-        progressPercentage =
-            ((userPoints - levelThresholds[1]) /
-                (levelThresholds[2] - levelThresholds[1])) *
-            100;
-        positionPercentage = 33 + progressPercentage * 0.33;
+        const range = levelThresholds[2] - levelThresholds[1];
+        const progress =
+            range > 0 ? (userPoints - levelThresholds[1]) / range : 0;
+        positionPercentage = 33.33 + progress * 33.33;
     } else {
         currentLevel = 0;
-        progressPercentage = (userPoints / levelThresholds[1]) * 100;
-        positionPercentage = progressPercentage * 0.33;
+        const range = levelThresholds[1] || 1;
+        const progress = userPoints / range;
+        positionPercentage = progress * 33.33;
     }
 
-    // Animasikan progress bar
+    positionPercentage = Math.max(0, Math.min(100, positionPercentage));
+
+    console.log("Calculated Current Level:", currentLevel);
+
+    document.getElementById("level-text").textContent = `LEVEL ${currentLevel}`;
+
     const progressFill = document.getElementById("progress-fill");
     const progressIndicator = document.getElementById("progress-indicator");
-    const claimButton = document.getElementById("claim-button");
 
-    setTimeout(() => {
-        progressFill.style.width = `${positionPercentage}%`;
-        progressIndicator.style.left = `${positionPercentage}%`;
+    // Ambil semua tombol klaim
+    const claimButton1 = document.getElementById("claim-button1");
+    const claimButton2 = document.getElementById("claim-button2");
+    const claimButton3 = document.getElementById("claim-button3");
 
-        // Tampilkan tombol klaim jika mencapai level baru
-        if (currentLevel > 0 && userPoints >= levelThresholds[currentLevel]) {
-            claimButton.classList.remove("hidden");
-            setTimeout(() => {
-                claimButton.classList.remove("opacity-0");
-            }, 50);
-        }
-    }, 100);
+    console.log("Button 1:", claimButton1);
+    console.log("Button 2:", claimButton2);
+    console.log("Button 3:", claimButton3);
+
+    // Update progress bar
+    progressFill.style.width = `${positionPercentage}%`;
+    progressIndicator.style.left = `${positionPercentage}%`;
+
+    // --- LOGIKA MENAMPILKAN TOMBOL ---
+    // Logika ini akan menampilkan *semua* tombol untuk level yang telah dicapai.
+    // Jika Anda hanya ingin menampilkan *satu* tombol (misalnya, yang tertinggi),
+    // Anda perlu mengubah logika ini dan mungkin menambahkan sistem untuk melacak klaim.
+
+    if (currentLevel >= 1) {
+        console.log("Showing button for Level 1");
+        showButton(claimButton1);
+    }
+    // Sembunyikan jika tidak (meskipun defaultnya hidden, ini untuk_keamanan)
+    // else { hideButton(claimButton1); }
+
+    if (currentLevel >= 2) {
+        console.log("Showing button for Level 2");
+        showButton(claimButton2);
+    }
+    // else { hideButton(claimButton2); }
+
+    if (currentLevel >= 3) {
+        console.log("Showing button for Level 3");
+        showButton(claimButton3);
+    }
+    // else { hideButton(claimButton3); }
+    // --- AKHIR LOGIKA TOMBOL ---
 }

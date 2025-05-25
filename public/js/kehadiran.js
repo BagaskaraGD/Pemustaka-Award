@@ -1,8 +1,52 @@
 document.addEventListener("DOMContentLoaded", function () {
     const apiUrl = `http://127.0.0.1:8000/api/hadir-kegiatan/kehadiran/${idCivitas}`;
+    const activityListContainer = document.getElementById(
+        "activity-list-container"
+    );
+    const totalPoinEl = document.getElementById("totalpoin");
+    const searchInput = document.getElementById("activity-search");
+    console.log("TOTAL POIN:", totalPoinEl);
 
-    console.log("ID CIVITAS:", idCivitas); // DEBUG
-    console.log("API URL:", apiUrl); // DEBUG
+    let allActivities = []; // This will store the original, unfiltered data
+
+    // Function to display a loading/info message
+    function displayMessage(message, type = "info") {
+        let icon = "";
+        let textColor = "text-gray-500";
+        let borderColor = "border-gray-200";
+        let animateClass = "";
+
+        if (type === "loading") {
+            icon =
+                '<svg class="inline-block w-6 h-6 mr-2 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 005.78 20.264M4.015 11H3a2 2 0 01-2-2V7a2 2 0 012-2h1M4 4l.582-.582m15.356 2l-.707.707M4.968 4.968L4.26 4.26M18.364 5.636L19.07 4.93M5.636 18.364L4.93 19.07"></path></svg>';
+            textColor = "text-blue-600";
+            borderColor = "border-blue-200";
+            animateClass = "animate-pulse";
+        } else if (type === "error") {
+            icon =
+                '<svg class="inline-block w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+            textColor = "text-red-600";
+            borderColor = "border-red-200";
+        } else if (type === "no-results") {
+            icon =
+                '<svg class="inline-block w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+            textColor = "text-yellow-700";
+            borderColor = "border-yellow-200";
+        }
+
+        activityListContainer.innerHTML = `
+            <div class="bg-white shadow-lg rounded-xl overflow-hidden p-6 text-center italic border ${borderColor} ${animateClass}">
+                ${icon}
+                <span class="${textColor} font-semibold">${message}</span>
+            </div>
+        `;
+    }
+
+    // Initial loading message
+    displayMessage("Memuat data kegiatan...", "loading");
+
+    console.log("ID CIVITAS:", idCivitas);
+    console.log("API URL:", apiUrl);
 
     fetch(apiUrl)
         .then((response) => {
@@ -18,69 +62,222 @@ document.addEventListener("DOMContentLoaded", function () {
             return response.json();
         })
         .then((data) => {
-            console.log("DATA API:", data); // DEBUG
-
-            const tableBody = document.getElementById("mykehadirantable");
-            const totalPoinEl = document.getElementById("totalpoin");
-            tableBody.innerHTML = ""; // Clear table before filling
-
-            let totalPoin = 0;
+            console.log("DATA API:", data);
 
             if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-                data.data.forEach((kegiatan, index) => {
-                    const bobotPoin = parseInt(kegiatan.bobot) || 0;
-                    totalPoin += bobotPoin;
+                const grouped = {};
+                data.data.forEach((kegiatan) => {
+                    if (!grouped[kegiatan.id_kegiatan]) {
+                        grouped[kegiatan.id_kegiatan] = {
+                            id_kegiatan: kegiatan.id_kegiatan,
+                            judul_kegiatan: kegiatan.judul_kegiatan,
+                            lokasi: kegiatan.lokasi,
+                            sesi: [],
+                        };
+                    }
+                    grouped[kegiatan.id_kegiatan].sesi.push({
+                        tgl_kegiatan: kegiatan.tgl_kegiatan,
+                        jam_kegiatan: kegiatan.jam_kegiatan,
+                        nama_pemateri: kegiatan.nama_pemateri,
+                        bobot: parseInt(kegiatan.bobot) || 0,
+                    });
+                });
+                allActivities = Object.values(grouped);
+                renderActivities(allActivities);
+            } else {
+                displayMessage(
+                    "Belum ada riwayat kegiatan. Mulai kumpulkan poin Anda!",
+                    "info"
+                );
+                totalPoinEl.textContent = "0";
+            }
+        })
+        .catch((error) => {
+            console.error("Gagal mengambil data kehadiran:", error);
+            displayMessage(
+                "Gagal memuat data kegiatan. Silakan coba lagi nanti.",
+                "error"
+            );
+            totalPoinEl.textContent = "Error";
+        });
 
-                    const row = document.createElement("tr");
-                    // Subtle hover effect: slight lift and shadow
-                    row.className = `transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+    // --- Function to Render Activities ---
+    function renderActivities(activitiesToRender) {
+        activityListContainer.innerHTML = ""; // Clear previous content
+        let currentTotalPoin = 0;
+
+        if (activitiesToRender.length === 0) {
+            displayMessage(
+                "Tidak ada kegiatan yang cocok dengan pencarian Anda.",
+                "no-results"
+            );
+        } else {
+            activitiesToRender.forEach((activity, index) => {
+                const activityCard = document.createElement("div");
+                activityCard.className = `bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden group transform transition-all duration-300 hover:shadow-2xl hover:scale-[1.01]`;
+
+                const activityPoin = activity.sesi.reduce(
+                    (acc, sesi) => acc + sesi.bobot,
+                    0
+                );
+                currentTotalPoin += activityPoin;
+
+                const header = document.createElement("div");
+                header.className = `p-4 flex items-center justify-between cursor-pointer
+                                     bg-white hover:bg-gray-50 transition-colors duration-200`;
+                header.setAttribute("data-activity-id", activity.id_kegiatan);
+                header.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-blue-500 mr-3 transform transition-transform duration-300 chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">${activity.judul_kegiatan}</h3>
+                            <p class="text-sm text-gray-600">Lokasi: ${activity.lokasi}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm font-semibold text-gray-500">${activity.sesi.length} Sesi</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                            ${activityPoin} Poin Total
+                        </span>
+                    </div>
+                `;
+                activityCard.appendChild(header);
+
+                const sessionDetails = document.createElement("div");
+                sessionDetails.className = `overflow-hidden max-h-0 transition-all duration-500 ease-in-out`;
+                sessionDetails.setAttribute(
+                    "data-session-content-id",
+                    activity.id_kegiatan
+                );
+
+                const sessionTable = document.createElement("table");
+                sessionTable.className = `min-w-full text-gray-800`;
+                sessionTable.innerHTML = `
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider pl-10">Sesi Detail</th>
+                            <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Tanggal</th>
+                            <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Jam</th>
+                            <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Pemateri</th>
+                            <th class="p-3 text-center text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Poin</th>
+                            <th class="p-3 text-center text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                    </tbody>
+                `;
+                const sessionTableBody = sessionTable.querySelector("tbody");
+
+                activity.sesi.forEach((sesi, sesiIndex) => {
+                    const sessionRow = document.createElement("tr");
+                    sessionRow.className = `${
+                        sesiIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`;
-
-                    row.innerHTML = `
-                        <td class="p-3 text-left text-sm text-gray-700">${kegiatan.judul_kegiatan}</td>
-                        <td class="p-3 text-left text-sm text-gray-600">${kegiatan.tgl_kegiatan}</td>
-                        <td class="p-3 text-left text-sm text-gray-600">${kegiatan.jam_kegiatan}</td>
-                        <td class="p-3 text-left text-sm text-gray-600">${kegiatan.nama_pemateri}</td>
-                        <td class="p-3 text-left text-sm text-gray-600">${kegiatan.lokasi}</td>
+                    sessionRow.innerHTML = `
+                        <td class="p-3 text-left text-sm text-gray-700 pl-10 border-l-4 border-blue-200">
+                            Sesi ${sesiIndex + 1}
+                        </td>
+                        <td class="p-3 text-left text-sm text-gray-600">${
+                            sesi.tgl_kegiatan
+                        }</td>
+                        <td class="p-3 text-left text-sm text-gray-600">${
+                            sesi.jam_kegiatan
+                        }</td>
+                        <td class="p-3 text-left text-sm text-gray-600">${
+                            sesi.nama_pemateri
+                        }</td>
                         <td class="p-3 text-center">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold 
-                                transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-green-200 cursor-pointer">
-                                ${bobotPoin} Poin
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                                ${sesi.bobot} Poin
                             </span>
                         </td>
                         <td class="p-3 text-center">
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1.5 px-3 rounded-md shadow-sm 
-                                transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1.5 px-3 rounded-md shadow-sm transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
                                 <svg class="w-4 h-4 inline-block align-middle mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4"></path></svg>
                                 Cetak
                             </button>
                         </td>
                     `;
-                    tableBody.appendChild(row);
+                    sessionTableBody.appendChild(sessionRow);
                 });
-            } else {
-                const noDataRow = document.createElement("tr");
-                noDataRow.innerHTML = `
-                    <td colspan="7" class="p-4 text-center text-gray-500 italic bg-gray-50 rounded-b-xl">
-                        Belum ada riwayat kegiatan. Mulai kumpulkan poin Anda!
-                    </td>
-                `;
-                tableBody.appendChild(noDataRow);
-            }
 
-            totalPoinEl.textContent = totalPoin;
-        })
-        .catch((error) => {
-            console.error("Gagal mengambil data kehadiran:", error);
-            const tableBody = document.getElementById("mykehadirantable");
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="p-4 text-center text-red-600 font-semibold italic bg-red-50 rounded-b-xl">
-                        Gagal memuat data kegiatan. Silakan coba lagi nanti.
-                    </td>
-                </tr>
-            `;
-            document.getElementById("totalpoin").textContent = "Error";
-        });
+                sessionDetails.appendChild(sessionTable);
+                activityCard.appendChild(sessionDetails);
+                activityListContainer.appendChild(activityCard);
+            });
+        }
+
+        activityListContainer
+            .querySelectorAll("[data-activity-id]")
+            .forEach((header) => {
+                header.addEventListener("click", () => {
+                    const activityId = header.getAttribute("data-activity-id");
+                    const content = document.querySelector(
+                        `[data-session-content-id="${activityId}"]`
+                    );
+                    const chevronIcon = header.querySelector(".chevron-icon");
+
+                    if (content.classList.contains("max-h-0")) {
+                        content.classList.remove("max-h-0");
+                        content.classList.add("max-h-screen");
+                        chevronIcon.classList.add("rotate-90");
+                    } else {
+                        content.classList.remove("max-h-screen");
+                        content.classList.add("max-h-0");
+                        chevronIcon.classList.remove("rotate-90");
+                    }
+                });
+            });
+        totalPoinEl.textContent = currentTotalPoin;
+    }
+
+    // --- Search Functionality with loading indicator ---
+    let searchTimeout;
+    searchInput.addEventListener("keyup", (event) => {
+        clearTimeout(searchTimeout); // Clear previous timeout
+        const searchTerm = event.target.value.toLowerCase().trim();
+
+        // Display a specific "searching" message
+        displayMessage("Mencari kegiatan...", "loading");
+
+        searchTimeout = setTimeout(() => {
+            const filteredActivities = allActivities.filter((activity) => {
+                const matchesActivity =
+                    activity.judul_kegiatan
+                        .toLowerCase()
+                        .includes(searchTerm) ||
+                    activity.lokasi.toLowerCase().includes(searchTerm);
+
+                const matchesSession = activity.sesi.some(
+                    (sesi) =>
+                        sesi.tgl_kegiatan.toLowerCase().includes(searchTerm) ||
+                        sesi.jam_kegiatan.toLowerCase().includes(searchTerm) ||
+                        sesi.nama_pemateri.toLowerCase().includes(searchTerm)
+                );
+
+                return matchesActivity || matchesSession;
+            });
+
+            // After filtering, check if there are results
+            if (filteredActivities.length === 0 && searchTerm !== "") {
+                displayMessage(
+                    "Tidak ada kegiatan yang cocok dengan pencarian Anda.",
+                    "no-results"
+                );
+            } else if (filteredActivities.length === 0 && searchTerm === "") {
+                // If search term is empty and no activities, show default no activities message
+                displayMessage(
+                    "Belum ada riwayat kegiatan. Mulai kumpulkan poin Anda!",
+                    "info"
+                );
+            } else {
+                renderActivities(filteredActivities);
+            }
+        }, 300); // Debounce search for 300ms
+    });
+
+    // Handle initial state if search input is empty but data exists
+    if (searchInput.value.trim() === "" && allActivities.length > 0) {
+        renderActivities(allActivities);
+    }
 });

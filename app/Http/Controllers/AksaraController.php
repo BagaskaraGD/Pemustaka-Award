@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail; // <-- TAMBAHKAN INI
+use App\Mail\ReviewBerhasilMail;     // <-- TAMBAHKAN INI
+use Illuminate\Support\Facades\Log; // <-- TAMBAHKAN INI (Opsional, untuk logging error)
 
 class AksaraController extends Controller
 {
@@ -20,41 +23,41 @@ class AksaraController extends Controller
             'sosmed',
             'perbaikan'
         ]);
-        //dd($request->all());
+
         $perbaikan = $request->perbaikan;
         $civitas = session('civitas')['id_civitas'];
-        //dd($civitas);
-        // Cek apakah nim sudah pernah review buku yang sama (induk_buku)
+
         if (!$perbaikan) {
-            $response = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/check-review', [
+            $responseCheck = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/check-review', [
                 'nim' => $civitas,
                 'induk_buku' => $request->kodebuku
             ]);
-            $alreadyReviewed = $response->json()['exists'] ?? false;
+            $alreadyReviewed = $responseCheck->json()['exists'] ?? false;
 
             if ($alreadyReviewed) {
-                return redirect()->back()->with('failed', true);
+                // Beri pesan yang lebih spesifik
+                return redirect()->back()->with('failed', 'Anda sudah pernah mereview buku ini.')->withInput();
             }
         }
-        $response = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/last-id');
 
-        $lastId = $response->json()['last_id'] ?? 0;
+        $responseLastId = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/last-id');
+        $lastId = $responseLastId->json()['last_id'] ?? 0;
         $newId = $lastId + 1;
 
         $responseIdb = Http::get('http://127.0.0.1:8000/api/aksara-dinamika/last-idbuku');
         $lastIdb = $responseIdb->json()['last_idb'] ?? 0;
         $newIdb = (string) ($lastIdb + 1);
 
-        // Pastikan link sosmed valid
         $link = $request->sosmed;
-        if (!Str::startsWith($link, ['http://', 'https://'])) {
+        // Pastikan link tidak null sebelum memprosesnya
+        if ($link && !Str::startsWith($link, ['http://', 'https://'])) {
             $link = 'https://' . $link;
         }
 
-        // Tanggal dan waktu sekarang
-        $currentDateTime = Carbon::now()->toDateTimeString(); // format: Y-m-d H:i:s
+        $currentDateTime = Carbon::now()->toDateTimeString();
 
-        $response = Http::post('http://127.0.0.1:8000/api/aksara-dinamika', [
+        // Siapkan data untuk dikirim ke API
+        $dataToSend = [
             'id' => $newId,
             'nim' => $civitas,
             'id_buku' => $newIdb,
@@ -63,12 +66,42 @@ class AksaraController extends Controller
             'dosen_usulan' => $request->rekomendasi,
             'link_upload' => $link,
             'tgl_review' => $currentDateTime,
-        ]);
+        ];
 
+        // Kirim data ke API
+        $response = Http::post('http://127.0.0.1:8000/api/aksara-dinamika', $dataToSend);
+
+        // Cek jika pengiriman ke API berhasil
         if ($response->successful()) {
-            return redirect()->back()->with('success', true);
+
+            // --- AWAL BAGIAN PENGIRIMAN EMAIL ---
+            try {
+                $emailTujuan = 'bagaskaragd@gmail.com'; // Alamat email tujuan
+
+                // Siapkan data untuk email (termasuk judul & pengarang)
+                $dataEmail = $dataToSend + [
+                    'judul' => $request->judul,
+                    'pengarang' => $request->pengarang,
+                ];
+
+                // Kirim email
+                Mail::to($emailTujuan)->send(new ReviewBerhasilMail($dataEmail));
+
+                // Jika berhasil, redirect dengan pesan sukses
+                return redirect()->back()->with('success', 'Review berhasil disimpan dan notifikasi telah dikirim.');
+            } catch (\Exception $e) {
+                // Jika email GAGAL, catat error (opsional)
+                Log::error('Gagal mengirim email notifikasi review: ' . $e->getMessage());
+
+                // Tetap redirect dengan pesan sukses, tapi tambahkan peringatan email
+                return redirect()->back()->with('success', 'Review berhasil disimpan, tetapi notifikasi email gagal dikirim.');
+            }
+            // --- AKHIR BAGIAN PENGIRIMAN EMAIL ---
+
         } else {
-            return redirect()->back()->with('failed', true);
+            // Jika GAGAL menyimpan ke API
+            Log::error('Gagal menyimpan review ke API: ' . $response->body()); // Catat error API
+            return redirect()->back()->with('failed', 'Gagal menyimpan data review. Silakan coba lagi.')->withInput();
         }
     }
     public function viewperbaiki(Request $request)
