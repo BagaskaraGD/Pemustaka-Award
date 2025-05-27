@@ -1,7 +1,6 @@
 @extends('layouts.appd')
 
 @section('content')
-    <P>Nama : {{ session('nama') }}</P>
     <p>ID Civitas: {{ session('civitas')['id_civitas'] }}</p>
     <p>Status: {{ session('status') }}</p>
     <!-- Main Content -->
@@ -13,7 +12,7 @@
             <!-- Dropdown Container -->
             <div class="relative">
                 <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    class="text-white bg-red-500 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-500 dark:hover:bg-red-800 dark:focus:ring-red-900"
                     type="button">
                     Pilih Periode
                     <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -34,14 +33,18 @@
             </div>
         </div>
 
+        {{-- Tampilkan hanya peringkat 1 --}}
+        @php
+            $top = $top5[0] ?? null;
+        @endphp
         <!-- Background Biru -->
         <div class="relative bg-[#880e4f] text-white pt-32 px-10 pb-28 rounded-t-[25px] min-h-[350px]">
             <div class="flex justify-center items-end">
                 <div class="text-center">
                     <div class="relative w-36 h-36 mx-auto">
                         <!-- Foto Profil -->
-                        <img src="assets/images/profile.png" alt="User Profile"
-                            class="w-full h-full object-cover rounded-full border-4 border-[rgba(251,195,77,1)] bg-gray-300">
+                        <img src="{{ asset(session('foto_profil')) }}" alt="User Profile"
+                            class="w-full h-full object-cover rounded-full border-4 border-[rgba(251,195,77,1)]">
 
                         <!-- Badge Peringkat -->
                         <div
@@ -49,10 +52,11 @@
                             1st
                         </div>
                     </div>
-                    <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">User 1</p>
-                    <div class="flex items-center space-x-2 ml-8">
-                        <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                        <p class="text-md font-russo">1200</p>
+                    <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">{{ $top['nama'] }}</p>
+                    <p class="mt-2 font-bold font-rubik text-lg text-[rgba(251,195,77,1)]">{{ $top['nim'] }}</p>
+                    <div class="flex justify-center items-center space-x-2 mt-2">
+                        <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-8 h-8">
+                        <p class="text-lg leading-none font-russo">{{ $top['total_rekap_poin'] }}</p>
                     </div>
                 </div>
             </div>
@@ -76,29 +80,29 @@
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Email</th>
+                        <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th>
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ([['place' => 1, 'name' => 'User 1', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 1200], ['place' => 2, 'name' => 'User 2', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 1000], ['place' => 3, 'name' => 'User 3', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 800], ['place' => 4, 'name' => 'User 4', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 650], ['place' => 5, 'name' => 'User 5', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 500]] as $user)
-                        <tr class="{{ $loop->index % 2 == 0 ? 'bg-gray-100' : 'bg-white' }}">
+                    @foreach ($top5 as $index => $user)
+                        <tr class="{{ $index % 2 == 0 ? 'bg-gray-100' : 'bg-white' }}">
                             <td class="p-3">
                                 <span
                                     class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[rgba(251,195,77,1)] text-[#880e4f] font-medium border border-gray-300">
-                                    {{ $user['place'] }}
+                                    {{ $index + 1 }}
                                 </span>
                             </td>
                             <td class="p-3">
-                                <div class="w-6 h-6 bg-blue-500 rounded-full"></div>
+                                <div class="w-6 h-6 bg-red-800 rounded-full"></div>
                             </td>
-                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['name'] }}</td>
-                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['nim'] }}</td>
-                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['email'] }}</td>
+                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['nama'] ?? '-' }}</td>
+                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['nim'] ?? '-' }}</td>
+                            <td class="p-3 font-rubik font-bold text-[#880e4f]">{{ $user['status'] ?? '-' }}</td>
                             <td class="p-3 text-center font-russo text-[#880e4f]">
                                 <div class="flex items-center justify-center space-x-2">
                                     <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                                    <span>{{ $user['points'] }}</span>
+                                    <span>{{ $user['total_rekap_poin'] ?? 0 }}</span>
                                 </div>
                             </td>
                         </tr>
@@ -126,32 +130,15 @@
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ([['place' => 1, 'name' => 'User 1', 'nim' => '22410100016', 'email' => '22410100016@dinamika.ac.id', 'points' => 1200]] as $user)
-                        <tr class="bg-[#880e4f]">
-                            <td class="p-3">
-                                <span
-                                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white text-[#880e4f] font-medium border border-gray-300">
-                                    {{ $user['place'] }}
-                                </span>
-                            </td>
-                            <td class="p-3">
-                                <div class="w-6 h-6 bg-blue-500 rounded-full"></div>
-                            </td>
-                            <td class="p-3 text-white font-rubik font-bold">{{ $user['name'] }}</td>
-                            <td class="p-3 text-white font-rubik font-bold">{{ $user['nim'] }}</td>
-                            <td class="p-3 text-white font-rubik font-bold">{{ $user['email'] }}</td>
-                            <td class="p-3 text-center font-russo text-white">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                                    <span>{{ $user['points'] }}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody onclick="window.location.href='{{ route('profile1') }}'" id="myRankingTableBody">
+                    <!-- Akan diisi dari JavaScript -->
                 </tbody>
             </table>
         </div>
-        <script src="{{ asset('js/periodedropdown.js') }}"></script>
     </main>
+    <script src="{{ asset('js/periodedropdown.js') }}"></script>
+    <script>
+        const idCivitas = "{{ session('civitas')['id_civitas'] }}";
+    </script>
+    <script src="{{ asset('js/myrankingdosen.js') }}"></script>
 @endsection

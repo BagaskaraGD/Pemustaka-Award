@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiUrl = `http://127.0.0.1:8000/api/myrank/${idCivitas}`;
+    const apiUrl = `http://127.0.0.1:8000/api/myrank/mhs/${idCivitas}`;
 
     fetch(apiUrl)
         .then((response) => response.json())

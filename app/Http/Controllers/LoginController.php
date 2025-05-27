@@ -36,8 +36,8 @@ class LoginController extends Controller
             $foto = 'assets/images/profile.png'; // default
 
             if ($gender == 'pria') {
-                $foto = 'assets/images/axelmarah.jpg';
-            } elseif ($gender == 'perempuan') {
+                $foto = 'assets/images/Cylo.png';
+            } elseif ($gender == 'wanita') {
                 $foto = 'assets/images/Cyla.png';
             }
 
@@ -46,7 +46,7 @@ class LoginController extends Controller
             if ($found['status'] == 'MHS') {
                 Session::put('status', $found['status']);
                 return redirect()->route('leaderboard1');
-            } else if ($found['status'] == 'DOSEN') {
+            } else if ($found['status'] == 'DOSEN' || $found['status'] == 'TENDIK') {
                 Session::put('status', $found['status']);
                 return redirect()->route('leaderboard2');
             } else {

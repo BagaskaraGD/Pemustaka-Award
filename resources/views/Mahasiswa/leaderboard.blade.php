@@ -140,5 +140,5 @@
     <script>
         const idCivitas = "{{ session('civitas')['id_civitas'] }}";
     </script>
-    <script src="{{ asset('js/myranking.js') }}"></script>
+    <script src="{{ asset('js/myrankingMHS.js') }}"></script>
 @endsection

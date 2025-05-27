@@ -26,7 +26,7 @@
                         <p class="text-gray-700 text-3xl font-bold font-rubik">PERINGKAT</p>
                         <p id="peringkat" class="text-6xl font-bold font-russo text-[#1F4C6D]"></p>
                     </div>
-                    <a href="/leaderboard">
+                    <a href="/leaderboard-mhs">
                         <button
                             class="bg-[#1F4C6D] text-white font-rubik px-4 py-2 rounded-md mt-2 mr-14">Leaderboard</button>
                     </a>

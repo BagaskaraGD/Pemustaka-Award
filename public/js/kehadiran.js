@@ -229,6 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             });
         totalPoinEl.textContent = currentTotalPoin;
+        localStorage.setItem("totalPoinKegiatan", currentTotalPoin); // Si
     }
 
     // --- Search Functionality with loading indicator ---

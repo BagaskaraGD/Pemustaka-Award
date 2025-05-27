@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
         console.log("Fetching data for idCivitas:", idCivitas);
 
-        const endpoint = `http://127.0.0.1:8000/api/myrank/${idCivitas}`;
+        const endpoint = `http://127.0.0.1:8000/api/myrank/mhs/${idCivitas}`;
         const response = await fetch(endpoint);
 
         if (!response.ok) {
