@@ -5,11 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const totalPoinEl = document.getElementById("totalpoin");
     const searchInput = document.getElementById("activity-search");
-    console.log("TOTAL POIN:", totalPoinEl);
+    const paginationControlsContainer = document.createElement("div");
+    paginationControlsContainer.className =
+        "flex justify-center items-center space-x-2 mt-6";
 
-    let allActivities = []; // This will store the original, unfiltered data
+    let allActivities = [];
+    let currentPage = 1;
+    const itemsPerPage = 5;
 
-    // Function to display a loading/info message
     function displayMessage(message, type = "info") {
         let icon = "";
         let textColor = "text-gray-500";
@@ -40,13 +43,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span class="${textColor} font-semibold">${message}</span>
             </div>
         `;
+        paginationControlsContainer.innerHTML = "";
     }
 
-    // Initial loading message
     displayMessage("Memuat data kegiatan...", "loading");
-
-    console.log("ID CIVITAS:", idCivitas);
-    console.log("API URL:", apiUrl);
 
     fetch(apiUrl)
         .then((response) => {
@@ -62,8 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return response.json();
         })
         .then((data) => {
-            console.log("DATA API:", data);
-
             if (data.data && Array.isArray(data.data) && data.data.length > 0) {
                 const grouped = {};
                 data.data.forEach((kegiatan) => {
@@ -76,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         };
                     }
                     grouped[kegiatan.id_kegiatan].sesi.push({
+                        id_jadwal: kegiatan.id_jadwal, // Simpan id_jadwal jika diperlukan untuk cetak
                         tgl_kegiatan: kegiatan.tgl_kegiatan,
                         jam_kegiatan: kegiatan.jam_kegiatan,
                         nama_pemateri: kegiatan.nama_pemateri,
@@ -83,13 +82,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 });
                 allActivities = Object.values(grouped);
+                currentPage = 1;
                 renderActivities(allActivities);
+                activityListContainer.parentNode.insertBefore(
+                    paginationControlsContainer,
+                    activityListContainer.nextSibling
+                );
             } else {
                 displayMessage(
                     "Belum ada riwayat kegiatan. Mulai kumpulkan poin Anda!",
                     "info"
                 );
                 totalPoinEl.textContent = "0";
+                paginationControlsContainer.innerHTML = "";
             }
         })
         .catch((error) => {
@@ -99,20 +104,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 "error"
             );
             totalPoinEl.textContent = "Error";
+            paginationControlsContainer.innerHTML = "";
         });
 
-    // --- Function to Render Activities ---
     function renderActivities(activitiesToRender) {
-        activityListContainer.innerHTML = ""; // Clear previous content
+        activityListContainer.innerHTML = "";
         let currentTotalPoin = 0;
 
-        if (activitiesToRender.length === 0) {
-            displayMessage(
-                "Tidak ada kegiatan yang cocok dengan pencarian Anda.",
-                "no-results"
-            );
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedActivities = activitiesToRender.slice(
+            startIndex,
+            endIndex
+        );
+
+        if (paginatedActivities.length === 0 && activitiesToRender.length > 0) {
+            displayMessage("Tidak ada kegiatan di halaman ini.", "no-results");
+        } else if (activitiesToRender.length === 0) {
+            // Ini akan ditangani oleh blok displayMessage di bagian search atau fetch awal
         } else {
-            activitiesToRender.forEach((activity, index) => {
+            paginatedActivities.forEach((activity, index) => {
                 const activityCard = document.createElement("div");
                 activityCard.className = `bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden group transform transition-all duration-300 hover:shadow-2xl hover:scale-[1.01]`;
 
@@ -120,12 +131,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     (acc, sesi) => acc + sesi.bobot,
                     0
                 );
-                currentTotalPoin += activityPoin;
 
                 const header = document.createElement("div");
-                header.className = `p-4 flex items-center justify-between cursor-pointer
-                                     bg-white hover:bg-gray-50 transition-colors duration-200`;
+                header.className = `p-4 flex items-center justify-between cursor-pointer bg-white hover:bg-gray-50 transition-colors duration-200`;
                 header.setAttribute("data-activity-id", activity.id_kegiatan);
+                // Perbarui header untuk menyertakan tombol cetak kegiatan
                 header.innerHTML = `
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-blue-500 mr-3 transform transition-transform duration-300 chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -139,6 +149,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
                             ${activityPoin} Poin Total
                         </span>
+                        <button class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1.5 px-3 rounded-md shadow-sm transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg print-activity-certificate-button" data-kegiatan-id="${activity.id_kegiatan}">
+                            <svg class="w-4 h-4 inline-block align-middle mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4"></path></svg>
+                            Cetak Sertifikat
+                        </button>
                     </div>
                 `;
                 activityCard.appendChild(header);
@@ -152,6 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const sessionTable = document.createElement("table");
                 sessionTable.className = `min-w-full text-gray-800`;
+                // Hapus kolom "Aksi" (tombol cetak per sesi) dari tabel sesi
                 sessionTable.innerHTML = `
                     <thead class="bg-gray-100 border-b border-gray-200">
                         <tr>
@@ -160,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Jam</th>
                             <th class="p-3 text-left text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Pemateri</th>
                             <th class="p-3 text-center text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Poin</th>
-                            <th class="p-3 text-center text-xs font-semibold font-rubik text-gray-700 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -173,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     sessionRow.className = `${
                         sesiIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`;
+                    // Hapus td untuk tombol cetak per sesi
                     sessionRow.innerHTML = `
                         <td class="p-3 text-left text-sm text-gray-700 pl-10 border-l-4 border-blue-200">
                             Sesi ${sesiIndex + 1}
@@ -191,12 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 ${sesi.bobot} Poin
                             </span>
                         </td>
-                        <td class="p-3 text-center">
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1.5 px-3 rounded-md shadow-sm transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-                                <svg class="w-4 h-4 inline-block align-middle mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4"></path></svg>
-                                Cetak
-                            </button>
-                        </td>
                     `;
                     sessionTableBody.appendChild(sessionRow);
                 });
@@ -207,10 +216,28 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        currentTotalPoin = activitiesToRender.reduce((total, activity) => {
+            return (
+                total +
+                activity.sesi.reduce(
+                    (subtotal, sesi) => subtotal + sesi.bobot,
+                    0
+                )
+            );
+        }, 0);
+
         activityListContainer
             .querySelectorAll("[data-activity-id]")
             .forEach((header) => {
-                header.addEventListener("click", () => {
+                header.addEventListener("click", (event) => {
+                    // Cegah toggle jika yang diklik adalah tombol cetak
+                    if (
+                        event.target.closest(
+                            ".print-activity-certificate-button"
+                        )
+                    ) {
+                        return;
+                    }
                     const activityId = header.getAttribute("data-activity-id");
                     const content = document.querySelector(
                         `[data-session-content-id="${activityId}"]`
@@ -228,56 +255,129 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 });
             });
+
+        // Tambahkan event listener untuk tombol cetak sertifikat kegiatan
+        activityListContainer
+            .querySelectorAll(".print-activity-certificate-button")
+            .forEach((button) => {
+                button.addEventListener("click", function (event) {
+                    event.stopPropagation(); // Hentikan propagasi agar tidak mentrigger toggle sesi
+                    const kegiatanId = this.getAttribute("data-kegiatan-id");
+                    console.log(
+                        `Cetak sertifikat untuk kegiatan ID: ${kegiatanId}`
+                    );
+                    // Di sini Anda akan memanggil fungsi untuk mencetak sertifikat
+                    // Misalnya: window.open(`/cetak-sertifikat/kegiatan/${kegiatanId}`, '_blank');
+                    alert(
+                        `Fungsi cetak untuk kegiatan ID ${kegiatanId} belum diimplementasikan.`
+                    );
+                });
+            });
+
         totalPoinEl.textContent = currentTotalPoin;
-        localStorage.setItem("totalPoinKegiatan", currentTotalPoin); // Si
+        //localStorage.setItem("totalPoinKegiatan", currentTotalPoin);
+        renderPaginationControls(activitiesToRender.length);
     }
 
-    // --- Search Functionality with loading indicator ---
+    function renderPaginationControls(totalItems) {
+        paginationControlsContainer.innerHTML = "";
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        if (totalPages <= 1) return;
+
+        const prevButton = document.createElement("button");
+        prevButton.innerHTML = "&laquo; Previous";
+        prevButton.className =
+            "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50";
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderActivities(
+                    allActivities.filter((activity) =>
+                        isActivityMatch(
+                            activity,
+                            searchInput.value.toLowerCase().trim()
+                        )
+                    )
+                );
+            }
+        });
+        paginationControlsContainer.appendChild(prevButton);
+
+        const pageInfo = document.createElement("span");
+        pageInfo.className = "px-4 py-2 text-sm text-gray-700";
+        pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+        paginationControlsContainer.appendChild(pageInfo);
+
+        const nextButton = document.createElement("button");
+        nextButton.innerHTML = "Next &raquo;";
+        nextButton.className =
+            "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50";
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderActivities(
+                    allActivities.filter((activity) =>
+                        isActivityMatch(
+                            activity,
+                            searchInput.value.toLowerCase().trim()
+                        )
+                    )
+                );
+            }
+        });
+        paginationControlsContainer.appendChild(nextButton);
+    }
+
+    function isActivityMatch(activity, searchTerm) {
+        if (!searchTerm) return true;
+
+        const matchesActivity =
+            activity.judul_kegiatan.toLowerCase().includes(searchTerm) ||
+            activity.lokasi.toLowerCase().includes(searchTerm);
+
+        const matchesSession = activity.sesi.some(
+            (sesi) =>
+                sesi.tgl_kegiatan.toLowerCase().includes(searchTerm) ||
+                sesi.jam_kegiatan.toLowerCase().includes(searchTerm) ||
+                sesi.nama_pemateri.toLowerCase().includes(searchTerm)
+        );
+        return matchesActivity || matchesSession;
+    }
+
     let searchTimeout;
     searchInput.addEventListener("keyup", (event) => {
-        clearTimeout(searchTimeout); // Clear previous timeout
+        clearTimeout(searchTimeout);
         const searchTerm = event.target.value.toLowerCase().trim();
 
-        // Display a specific "searching" message
         displayMessage("Mencari kegiatan...", "loading");
 
         searchTimeout = setTimeout(() => {
-            const filteredActivities = allActivities.filter((activity) => {
-                const matchesActivity =
-                    activity.judul_kegiatan
-                        .toLowerCase()
-                        .includes(searchTerm) ||
-                    activity.lokasi.toLowerCase().includes(searchTerm);
+            const filteredActivities = allActivities.filter((activity) =>
+                isActivityMatch(activity, searchTerm)
+            );
+            currentPage = 1;
 
-                const matchesSession = activity.sesi.some(
-                    (sesi) =>
-                        sesi.tgl_kegiatan.toLowerCase().includes(searchTerm) ||
-                        sesi.jam_kegiatan.toLowerCase().includes(searchTerm) ||
-                        sesi.nama_pemateri.toLowerCase().includes(searchTerm)
-                );
-
-                return matchesActivity || matchesSession;
-            });
-
-            // After filtering, check if there are results
             if (filteredActivities.length === 0 && searchTerm !== "") {
                 displayMessage(
                     "Tidak ada kegiatan yang cocok dengan pencarian Anda.",
                     "no-results"
                 );
+                paginationControlsContainer.innerHTML = "";
             } else if (filteredActivities.length === 0 && searchTerm === "") {
-                // If search term is empty and no activities, show default no activities message
                 displayMessage(
                     "Belum ada riwayat kegiatan. Mulai kumpulkan poin Anda!",
                     "info"
                 );
+                paginationControlsContainer.innerHTML = "";
             } else {
                 renderActivities(filteredActivities);
             }
-        }, 300); // Debounce search for 300ms
+        }, 300);
     });
 
-    // Handle initial state if search input is empty but data exists
     if (searchInput.value.trim() === "" && allActivities.length > 0) {
         renderActivities(allActivities);
     }

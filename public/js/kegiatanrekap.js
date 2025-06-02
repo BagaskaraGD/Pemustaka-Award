@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
             if (data.count !== undefined) {
-                const totalPoin = localStorage.getItem("totalPoinKegiatan") || 0; 
+                // const totalPoin = localStorage.getItem("totalPoinKegiatan") || 0; 
                 // document.getElementById("kegiatan-count").textContent =
                     data.count;
                 console.log("Jumlah kegiatan:", data.count); // DEBUG

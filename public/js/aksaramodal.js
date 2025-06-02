@@ -15,19 +15,10 @@ let currentAksaraDinamikaId = null;
 let currentCivitasId = null;
 let currentIndukBuku = null;
 
-/**
- * Fungsi untuk membuka modal riwayat (ditolak/diterima) dan menampilkan histori review.
- * @param {string} judulBuku - Judul buku yang terkait dengan pengajuan.
- * @param {string} status - Status pengajuan ('ditolak' atau 'diterima').
- * @param {string} adminKeterangan - Keterangan terakhir dari admin (dari tabel, sebagai fallback).
- * @param {string} aksaraDinamikaId - ID Aksara Dinamika.
- * @param {string} civitasId - ID Civitas (NIM mahasiswa).
- * @param {string} indukBuku - ID Induk Buku (jika ada).
- */
 async function openHistoryModal(
     judulBuku,
     status,
-    adminKeterangan, // Kita tetap terima ini sebagai fallback awal
+    adminKeterangan,
     aksaraDinamikaId,
     civitasId,
     indukBuku
@@ -46,12 +37,11 @@ async function openHistoryModal(
     currentAksaraDinamikaId = aksaraDinamikaId;
     currentCivitasId = civitasId;
 
-    reviewHistoryItems.innerHTML = ""; // Bersihkan histori lama
+    reviewHistoryItems.innerHTML = "";
 
     let latestAdminKeterangan =
-        adminKeterangan || "Tidak ada keterangan dari admin."; // Fallback awal
+        adminKeterangan || "Tidak ada keterangan dari admin.";
 
-    // --- Mengambil dan Menampilkan Riwayat Review dari API ---
     try {
         const response = await fetch(
             `http://127.0.0.1:8000/api/histori-status/${civitasId}/${indukBuku}`
@@ -62,16 +52,11 @@ async function openHistoryModal(
         const apiResponse = await response.json();
         const historyData = apiResponse.data;
 
-        console.log("Data histori review dari API:", historyData);
-
         if (historyData && historyData.length > 0) {
-            // *** AWAL PERUBAHAN: Cari Keterangan Admin Terakhir dari Histori ***
-            // Urutkan histori berdasarkan tanggal (terbaru dulu)
             const sortedHistory = [...historyData].sort(
                 (a, b) => new Date(b.tgl_status) - new Date(a.tgl_status)
             );
 
-            // Cari entri 'ditolak' pertama (yang berarti terbaru) yang punya keterangan
             const latestDitolakEntry = sortedHistory.find(
                 (entry) =>
                     entry.status.toLowerCase() === "ditolak" &&
@@ -80,15 +65,11 @@ async function openHistoryModal(
                     entry.keterangan !== "Tidak ada keterangan dari admin."
             );
 
-            // Jika ditemukan, gunakan keterangannya
             if (latestDitolakEntry) {
                 latestAdminKeterangan = latestDitolakEntry.keterangan;
             }
-            // *** AKHIR PERUBAHAN ***
 
-            // Tampilkan semua histori (logika Anda yang sudah ada)
             historyData.forEach((entry) => {
-                // Gunakan historyData asli agar urutan tetap kronologis (atau sortedHistory jika ingin terbaru di atas)
                 const itemDiv = document.createElement("div");
                 itemDiv.classList.add("relative", "mb-4", "pb-4");
 
@@ -170,24 +151,21 @@ async function openHistoryModal(
         console.error("Gagal mengambil histori review:", error);
         reviewHistoryItems.innerHTML +=
             '<p class="ml-0 text-red-500">Gagal memuat histori review. Silakan coba lagi.</p>';
-        // Jika API gagal, kita tetap gunakan keterangan awal yang dilewatkan
         latestAdminKeterangan = adminKeterangan || "Gagal memuat keterangan.";
     }
 
-    // --- Atur konten modal berdasarkan status ---
     if (status === "ditolak") {
         modalTitle.textContent = "Status Ditolak";
         modalTitle.className =
-            "text-3xl font-extrabold text-red-600 mb-4 border-b-2 border-red-200 pb-2 text-center"; // Set ulang kelas
+            "text-3xl font-extrabold text-red-600 mb-4 border-b-2 border-red-200 pb-2 text-center";
         ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" ditolak. Mohon periksa kembali persyaratan atau hubungi admin.`;
         adminKeteranganContainer.classList.remove("hidden");
-        // *** GUNAKAN KETERANGAN TERBARU YANG DITEMUKAN ***
         adminKeteranganText.textContent = latestAdminKeterangan;
         perbaikiButton.classList.remove("hidden");
     } else if (status === "diterima") {
         modalTitle.textContent = "Status Diterima";
         modalTitle.className =
-            "text-3xl font-extrabold text-green-600 mb-4 border-b-2 border-green-200 pb-2 text-center"; // Set ulang kelas
+            "text-3xl font-extrabold text-green-600 mb-4 border-b-2 border-green-200 pb-2 text-center";
         ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" telah diterima.`;
         adminKeteranganContainer.classList.add("hidden");
         perbaikiButton.classList.add("hidden");
@@ -196,15 +174,13 @@ async function openHistoryModal(
         return;
     }
 
-    modal.classList.remove("hidden"); // Tampilkan modal
+    modal.classList.remove("hidden");
 }
 
-// Fungsi untuk menutup modal riwayat
 function closeDitolakModal() {
     document.getElementById("ditolakModal").classList.add("hidden");
 }
 
-// Fungsi yang dipanggil saat tombol "Perbaiki" diklik
 function handlePerbaikiClick() {
     if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId) {
         window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
@@ -213,12 +189,159 @@ function handlePerbaikiClick() {
     }
 }
 
-// Fungsi filterTable
+// --- PAGINASI UNTUK TABEL AKSARA DINAMIKA ---
+let aksaraCurrentPage = 1;
+const aksaraItemsPerPage = 7;
+let allAksaraDataRows = [];
+
+function renderAksaraTable(rowsToRender) {
+    const tableBody = document.getElementById("dataTable");
+    if (!tableBody) return; // Pastikan tableBody ada
+
+    tableBody.innerHTML = "";
+
+    const startIndex = (aksaraCurrentPage - 1) * aksaraItemsPerPage;
+    const endIndex = startIndex + aksaraItemsPerPage;
+    const paginatedRows = rowsToRender.slice(startIndex, endIndex);
+
+    if (paginatedRows.length === 0) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.className = "px-6 py-4 text-center text-gray-500";
+        td.textContent =
+            rowsToRender.length > 0
+                ? "Tidak ada data di halaman ini."
+                : "Tidak ada data histori Aksara Dinamika.";
+        tr.appendChild(td);
+        tableBody.appendChild(tr);
+    } else {
+        paginatedRows.forEach((rowElement) => {
+            tableBody.appendChild(rowElement.cloneNode(true));
+        });
+    }
+    renderAksaraPaginationControls(rowsToRender.length);
+}
+
+function renderAksaraPaginationControls(totalItems) {
+    const paginationControls = document.getElementById("aksaraTablePagination");
+    if (!paginationControls) return;
+    paginationControls.innerHTML = "";
+
+    const totalPages = Math.ceil(totalItems / aksaraItemsPerPage);
+
+    if (totalPages <= 1) return;
+
+    const createButton = (text, page, isDisabled = false) => {
+        const button = document.createElement("button");
+        button.innerHTML = text;
+        button.className = `px-3 py-1 mx-1 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed`;
+        if (
+            page === aksaraCurrentPage &&
+            text !== "&laquo; Previous" &&
+            text !== "Next &raquo;"
+        ) {
+            button.classList.add(
+                "bg-blue-500",
+                "text-white",
+                "border-blue-500"
+            );
+            button.classList.remove("hover:bg-gray-50");
+        }
+        button.disabled = isDisabled;
+        button.addEventListener("click", () => {
+            aksaraCurrentPage = page; // Set halaman baru
+
+            // Ambil term pencarian saat ini
+            const currentSearchTerm = document
+                .getElementById("searchInput")
+                .value.toLowerCase();
+            // Filter ulang data berdasarkan term pencarian
+            const currentlyFilteredRows = allAksaraDataRows.filter((row) => {
+                const textContent = row.textContent.toLowerCase();
+                return textContent.includes(currentSearchTerm);
+            });
+            // Render tabel dengan data yang sudah difilter dan halaman yang baru
+            renderAksaraTable(currentlyFilteredRows);
+        });
+        return button;
+    };
+
+    paginationControls.appendChild(
+        createButton(
+            "&laquo; Previous",
+            aksaraCurrentPage - 1,
+            aksaraCurrentPage === 1
+        )
+    );
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (
+            totalPages > 5 &&
+            i > 2 &&
+            i < totalPages - 1 &&
+            Math.abs(i - aksaraCurrentPage) > 1
+        ) {
+            if (!paginationControls.querySelector(".ellipsis")) {
+                const ellipsis = document.createElement("span");
+                ellipsis.textContent = "...";
+                ellipsis.className = "px-3 py-1 mx-1 text-sm";
+                ellipsis.classList.add("ellipsis");
+                paginationControls.appendChild(ellipsis);
+            }
+            continue;
+        }
+        paginationControls.appendChild(createButton(i.toString(), i));
+    }
+
+    paginationControls.appendChild(
+        createButton(
+            "Next &raquo;",
+            aksaraCurrentPage + 1,
+            aksaraCurrentPage === totalPages
+        )
+    );
+}
+
+// Fungsi filterTable hanya untuk menangani perubahan pada input search
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
-    const rows = document.querySelectorAll("#dataTable tr");
-    rows.forEach((row) => {
+    const filteredRows = allAksaraDataRows.filter((row) => {
         const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(input) ? "" : "none";
+        return text.includes(input);
     });
+    aksaraCurrentPage = 1; // Reset ke halaman pertama SETIAP KALI filter/pencarian baru
+    renderAksaraTable(filteredRows);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const tableBody = document.getElementById("dataTable");
+    if (tableBody) {
+        allAksaraDataRows = Array.from(tableBody.querySelectorAll("tr"));
+
+        let paginationDiv = document.getElementById("aksaraTablePagination");
+        if (!paginationDiv) {
+            paginationDiv = document.createElement("div");
+            paginationDiv.id = "aksaraTablePagination";
+            paginationDiv.className =
+                "flex justify-center items-center space-x-1 mt-4";
+            const tableContainer = tableBody.closest(".overflow-x-auto");
+            if (tableContainer && tableContainer.parentNode) {
+                tableContainer.parentNode.insertBefore(
+                    paginationDiv,
+                    tableContainer.nextSibling
+                );
+            } else {
+                tableBody.insertAdjacentElement("afterend", paginationDiv);
+            }
+        }
+        // Untuk render awal, kita panggil filterTable. Ini akan secara otomatis
+        // menampilkan semua data (karena searchInput kosong) dan mengatur halaman ke 1.
+        filterTable();
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", filterTable);
+    }
+});

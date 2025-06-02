@@ -69,22 +69,29 @@
                     </div>
                 </div>
 
-                {{-- Tombol Klaim (dengan div pembungkus untuk centering dan spacing) --}}
-                <div class="flex justify-center mt-4 space-x-4"> {{-- Ditambahkan space-x-4 untuk jarak --}}
-                    {{-- Tombol Level 1 --}}
-                    <button id="claim-button1"
-                        class="block bg-[#1F4C6D] font-rubik mr-60 text-white px-4 py-2 rounded-md opacity-0 transition-opacity duration-300 hidden"
-                        onclick="openModal(1)">Klaim </button> {{-- Kirim level ke openModal --}}
+                {{-- Tombol Klaim dengan Positioning Absolut --}}
+                <div class="mt-4 relative h-10">
+                    {{-- Kontainer Tombol Level 1 --}}
+                    <div id="claim-button1-container" class="absolute opacity-0 transition-opacity duration-300 hidden"
+                        style="left: 33.33%; transform: translateX(-50%);">
+                        <button id="claim-button1" class="bg-[#1F4C6D] font-rubik text-white px-4 py-2 rounded-md"
+                            onclick="openModal(1)">Klaim</button>
+                    </div>
 
-                    {{-- Tombol Level 2 --}}
-                    <button id="claim-button2"
-                        class="block bg-[#1F4C6D] font-rubik  text-white px-4 py-2 rounded-md opacity-0 transition-opacity duration-300 hidden"
-                        onclick="openModal(2)">Klaim </button> {{-- Kirim level ke openModal --}}
+                    {{-- Kontainer Tombol Level 2 --}}
+                    <div id="claim-button2-container" class="absolute opacity-0 transition-opacity duration-300 hidden"
+                        style="left: 66.67%; transform: translateX(-50%);">
+                        <button id="claim-button2" class="bg-[#1F4C6D] font-rubik text-white px-4 py-2 rounded-md"
+                            onclick="openModal(2)">Klaim</button>
+                    </div>
 
-                    {{-- Tombol Level 3 --}}
-                    <button id="claim-button3"
-                        class="block bg-[#1F4C6D] font-rubik text-white px-4 py-2 rounded-md opacity-0 transition-opacity duration-300 hidden"
-                        onclick="openModal(3)">Klaim </button> {{-- Kirim level ke openModal --}}
+                    {{-- Kontainer Tombol Level 3 --}}
+                    {{-- Ubah style di sini --}}
+                    <div id="claim-button3-container" class="absolute opacity-0 transition-opacity duration-300 hidden"
+                        style="left: 100%; transform: translateX(-100%);">
+                        <button id="claim-button3" class="bg-[#1F4C6D] font-rubik text-white px-4 py-2 rounded-md"
+                            onclick="openModal(3)">Klaim</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,7 +124,6 @@
         <div class="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 class="text-xl font-bold mb-4">Klaim Hadiah Level <span id="modal-level">X</span>!</h2>
             <p class="text-gray-600">Selamat! Anda telah mencapai level baru dan berhak mengklaim hadiah.</p>
-            {{-- Anda bisa menambahkan info hadiah spesifik di sini --}}
             <div class="mt-4 flex justify-end">
                 <button class="bg-gray-400 text-white px-4 py-2 rounded-md mr-2" onclick="closeModal()">Tutup</button>
                 <button class="bg-blue-500 text-white px-4 py-2 rounded-md" onclick="alert('Klaim diproses!')">Klaim
@@ -127,8 +133,8 @@
     </div>
 
     <script>
-        function openModal(level) { // Terima parameter level
-            document.getElementById('modal-level').textContent = level; // Tampilkan level di modal
+        function openModal(level) {
+            document.getElementById('modal-level').textContent = level;
             document.getElementById('modal').classList.remove('hidden');
         }
 

@@ -3,7 +3,7 @@
 @section('content')
     <h2
         class="text-3xl md:text-4xl font-extrabold font-rubik mb-6 text-gray-800 border-b-2 border-blue-600 pb-2 inline-block">
-        Dashboard Kegiatan & Poin
+        Kegiatan
     </h2>
 
     {{-- Container for "Klaim Poin" and "Search" Inputs --}}

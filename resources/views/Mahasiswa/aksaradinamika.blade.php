@@ -129,7 +129,7 @@
                 <thead class="bg-[#1f4c6d] text-white text-sm uppercase tracking-wider">
                     <tr>
                         <th class="px-6 py-4 text-left">Judul Buku</th>
-                        <th class="px-6 py-4 text-left">Tanggal Confirm</th>
+                        <th class="px-6 py-4 text-left">Tanggal Konfirmasi</th>
                         <th class="px-6 py-4 text-left">Periode</th>
                         <th class="px-6 py-4 text-left">Status</th>
                     </tr>

@@ -110,13 +110,13 @@ function updateProgress(userPoints) {
     const progressIndicator = document.getElementById("progress-indicator");
 
     // Ambil semua tombol klaim
-    const claimButton1 = document.getElementById("claim-button1");
-    const claimButton2 = document.getElementById("claim-button2");
-    const claimButton3 = document.getElementById("claim-button3");
+    const claimContainer1 = document.getElementById("claim-button1-container");
+    const claimContainer2 = document.getElementById("claim-button2-container");
+    const claimContainer3 = document.getElementById("claim-button3-container");
 
-    console.log("Button 1:", claimButton1);
-    console.log("Button 2:", claimButton2);
-    console.log("Button 3:", claimButton3);
+    console.log("Button 1:", claimContainer1);
+    console.log("Button 2:", claimContainer2);
+    console.log("Button 3:", claimContainer3);
 
     // Update progress bar
     progressFill.style.width = `${positionPercentage}%`;
@@ -128,21 +128,16 @@ function updateProgress(userPoints) {
     // Anda perlu mengubah logika ini dan mungkin menambahkan sistem untuk melacak klaim.
 
     if (currentLevel >= 1) {
-        console.log("Showing button for Level 1");
-        showButton(claimButton1);
+        console.log("Showing button container for Level 1");
+        showButton(claimContainer1);
     }
-    // Sembunyikan jika tidak (meskipun defaultnya hidden, ini untuk_keamanan)
-    // else { hideButton(claimButton1); }
-
     if (currentLevel >= 2) {
-        console.log("Showing button for Level 2");
-        showButton(claimButton2);
+        console.log("Showing button container for Level 2");
+        showButton(claimContainer2);
     }
-    // else { hideButton(claimButton2); }
-
     if (currentLevel >= 3) {
-        console.log("Showing button for Level 3");
-        showButton(claimButton3);
+        console.log("Showing button container for Level 3");
+        showButton(claimContainer3);
     }
     // else { hideButton(claimButton3); }
     // --- AKHIR LOGIKA TOMBOL ---
