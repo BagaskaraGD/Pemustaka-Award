@@ -85,7 +85,7 @@
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIDN</th>
+                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th>
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
@@ -144,7 +144,7 @@
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIDN</th>
+                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
                         <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th> {{-- Diubah dari Email menjadi Status --}}
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
@@ -158,9 +158,7 @@
     <script>
         const idCivitas = "{{ session('civitas')['id_civitas'] }}";
         const fotoProfilSession =
-        "{{ asset(session('foto_profil', 'assets/images/profile.png')) }}"; // Ambil dari session, dengan default
+            "{{ asset(session('foto_profil', 'assets/images/profile.png')) }}"; // Ambil dari session, dengan default
     </script>
     <script src="{{ asset('js/myrankingDosen.js') }}"></script>
 @endsection
-
-

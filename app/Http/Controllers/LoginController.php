@@ -10,6 +10,22 @@ use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
+    /**
+     * URL dasar untuk API backend.
+     * Diambil dari config/services.php yang membaca file .env
+     *
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * Constructor untuk menginisialisasi base URL.
+     */
+    public function __construct()
+    {
+        // Mengambil base URL dari file konfigurasi sekali saja.
+        $this->baseUrl = config('services.backend.base_url');
+    }
     public function viewLoginForm()
     {
         return view('formlogin');
@@ -20,7 +36,7 @@ class LoginController extends Controller
             'nocivitas' => ['required'],
         ]);
         //dd($credentials);
-        $response = Http::get('http://127.0.0.1:8000/api/civitas');
+        $response = Http::get($this->baseUrl .'/civitas');
         $data = $response->json();
         $found = collect($data)->firstWhere('id_civitas', $credentials['nocivitas']);
         //dd($data);
