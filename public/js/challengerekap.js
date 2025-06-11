@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
     const apiUrlGet = `http://127.0.0.1:8000/api/challenge-count/${idCivitas}`;
     const apiUrlPoin = "http://127.0.0.1:8000/api/pembobotan/aksara-dinamika";
 

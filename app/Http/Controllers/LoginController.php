@@ -59,4 +59,10 @@ class LoginController extends Controller
             'nocivitas' => 'The provided credentials do not match our records.',
         ])->onlyInput('nocivitas');
     }
+    public function logout(Request $request)
+    {
+        $request->session()->flush();
+        Auth::logout();
+        return redirect()->route('login')->with('success', 'Anda berhasil logout.');
+    }
 }

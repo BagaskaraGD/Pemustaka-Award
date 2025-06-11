@@ -1,7 +1,7 @@
 let activeRewardsData = [];
 let currentPeriodeId = null;
 let userProfileData = null;
-
+const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
 const ICONS_HTML = {
     locked: '<i class="fas fa-lock"></i>',
     unlocked: '<i class="fas fa-unlock-alt"></i>',
@@ -10,6 +10,7 @@ const ICONS_HTML = {
 };
 
 document.addEventListener("DOMContentLoaded", async function () {
+    
     console.log("DOM Loaded. Starting profile user script.");
     await fetchInitialData();
     attachClaimButtonListeners();

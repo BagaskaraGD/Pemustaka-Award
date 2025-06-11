@@ -194,8 +194,6 @@
 
     <script>
         const idCivitas = "{{ session('civitas.id_civitas') }}";
-        const apiBaseUrl = "{{ url('http://127.0.0.1:8000/api') }}";
-        document.body.setAttribute('data-base-url', "{{ url('/') }}");
     </script>
     <script src="{{ asset('js/pencapaian.js') }}"></script>
     <script src="{{ asset('js/profileuser.js') }}"></script>

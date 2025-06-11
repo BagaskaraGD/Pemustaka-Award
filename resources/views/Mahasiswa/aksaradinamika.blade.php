@@ -137,18 +137,15 @@
                 <tbody id="dataTable" class="bg-white divide-y divide-gray-100">
                     @foreach ($data as $item)
                         <tr class="hover:bg-gray-50 cursor-pointer
-                                   transition-all duration-300 ease-in-out hover:shadow-md hover:translate-y-[-2px]" {{-- Added hover classes here --}}
-                            @if (strtolower($item['status']) == 'ditolak' || strtolower($item['status']) == 'diterima')
-                                onclick="openHistoryModal(
-                                    '{{ $item['judul'] }}',
-                                    '{{ strtolower($item['status']) }}',
-                                    '{{ $item['keterangan'] ?? 'Tidak ada keterangan dari admin.' }}',
-                                    '{{ $item['id_aksara_dinamika'] }}',
-                                    '{{ $civitasId }}',
-                                    '{{ $item['induk_buku'] }}',
-                                )"
-                            @endif
-                        >
+                                transition-all duration-300 ease-in-out hover:shadow-md hover:translate-y-[-2px]"
+                            onclick="openHistoryModal(
+                                '{{ $item['judul'] }}',
+                                '{{ strtolower($item['status']) }}',
+                                '{{ $item['keterangan'] ?? 'Tidak ada keterangan dari admin.' }}',
+                                '{{ $item['id_aksara_dinamika'] }}',
+                                '{{ $civitasId }}',
+                                '{{ $item['induk_buku'] }}',
+                            )">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $item['judul'] }}
                             </td>

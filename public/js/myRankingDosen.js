@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
     // Pastikan idCivitas dan fotoProfilSession sudah didefinisikan di Blade
     if (typeof idCivitas === "undefined") {
         console.error("idCivitas is not defined!");
@@ -9,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Anda bisa set default di sini juga jika perlu, tapi lebih baik dari Blade
     }
 
-    const apiUrl = `http://127.0.0.1:8000/api/myrank/dosen/${idCivitas}`;
+    const apiUrl = `${apiBaseUrl}/myrank/dosen/${idCivitas}`;
 
     fetch(apiUrl)
         .then((response) => {

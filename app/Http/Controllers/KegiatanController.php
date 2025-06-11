@@ -9,6 +9,22 @@ use Illuminate\Support\Str;
 
 class KegiatanController extends Controller
 {
+    /**
+     * URL dasar untuk API backend.
+     * Diambil dari config/services.php yang membaca file .env
+     *
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * Constructor untuk menginisialisasi base URL.
+     */
+    public function __construct()
+    {
+        // Mengambil base URL dari file konfigurasi sekali saja.
+        $this->baseUrl = config('services.backend.base_url');
+    }
     public function viewKegiatan1()
     {
         return view('Mahasiswa/kegiatan');
@@ -48,7 +64,7 @@ class KegiatanController extends Controller
             'nim' => $civitas,
             'id_jadwal' => $found['id_jadwal'],
         ]);
-         $sudahAbsen = $response->json()['exists'] ?? false;
+        $sudahAbsen = $response->json()['exists'] ?? false;
 
         if ($sudahAbsen) {
             return redirect()->route('kegiatan1')->with('error', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');

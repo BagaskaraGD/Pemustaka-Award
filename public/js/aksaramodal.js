@@ -1,5 +1,5 @@
 // public/js/aksaramodal.js
-
+const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
 // Fungsi untuk membuka modal informasi umum (yang sudah ada)
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
@@ -44,7 +44,7 @@ async function openHistoryModal(
 
     try {
         const response = await fetch(
-            `http://127.0.0.1:8000/api/histori-status/${civitasId}/${indukBuku}`
+            `${apiBaseUrl}/histori-status/${civitasId}/${indukBuku}`
         );
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -154,7 +154,7 @@ async function openHistoryModal(
         latestAdminKeterangan = adminKeterangan || "Gagal memuat keterangan.";
     }
 
-    if (status === "ditolak") {
+   if (status === "ditolak") {
         modalTitle.textContent = "Status Ditolak";
         modalTitle.className =
             "text-3xl font-extrabold text-red-600 mb-4 border-b-2 border-red-200 pb-2 text-center";
@@ -169,6 +169,13 @@ async function openHistoryModal(
         ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" telah diterima.`;
         adminKeteranganContainer.classList.add("hidden");
         perbaikiButton.classList.add("hidden");
+    } else if (status === "menunggu") { // TAMBAHKAN BLOK INI
+        modalTitle.textContent = "Status Menunggu";
+        modalTitle.className =
+            "text-3xl font-extrabold text-blue-600 mb-4 border-b-2 border-blue-200 pb-2 text-center";
+        ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" sedang dalam proses review.`;
+        adminKeteranganContainer.classList.add("hidden"); // Tidak ada keterangan admin untuk status menunggu
+        perbaikiButton.classList.add("hidden"); // Tidak ada tombol perbaiki untuk status menunggu
     } else {
         console.warn("Status tidak diharapkan:", status);
         return;

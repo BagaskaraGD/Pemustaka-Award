@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiUrl = `http://127.0.0.1:8000/api/hadir-kegiatan/kehadiran/${idCivitas}`;
+    const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+    const apiUrl = `${apiBaseUrl}/hadir-kegiatan/kehadiran/${idCivitas}`;
     const activityListContainer = document.getElementById(
         "activity-list-container"
     );

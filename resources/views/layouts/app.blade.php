@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- BARIS INI PENTING --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="api-base-url" content="{{ config('services.backend.base_url') }}">
     <title>@yield('title', 'Pemustaka Award')</title>
 
     <!-- Google Fonts -->
@@ -84,6 +85,16 @@
                         </div>
                     </li>
                 </ul>
+                <div class="absolute bottom-5 w-full pr-10">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="w-full flex items-center p-3 rounded-lg text-red-500 hover:bg-red-100">
+                            <i class="fas fa-sign-out-alt w-6 h-6 mr-4"></i>
+                            <span class="font-semibold">Logout</span>
+                        </button>
+                    </form>
+                </div>
             </nav>
         </aside>
 

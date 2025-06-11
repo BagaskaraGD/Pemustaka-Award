@@ -1,10 +1,11 @@
   document.addEventListener("DOMContentLoaded", async function () {
+        const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
         // Ganti dengan variabel dinamis jika perlu
         // Endpoint API
-        const apiChallenge = `http://127.0.0.1:8000/api/rekap-poin/jumlah/aksara/${idCivitas}`;
-        const apiKegiatan = `http://127.0.0.1:8000/api/rekap-poin/jumlah/kegiatan/${idCivitas}`;
-        const apiKunjungan = `http://127.0.0.1:8000/api/rekap-poin/jumlah/kunjungan/${idCivitas}`;
-        const apiPinjaman = `http://127.0.0.1:8000/api/rekap-poin/jumlah/pinjaman/${idCivitas}`;
+        const apiChallenge = `${apiBaseUrl}/rekap-poin/jumlah/aksara/${idCivitas}`;
+        const apiKegiatan = `${apiBaseUrl}/rekap-poin/jumlah/kegiatan/${idCivitas}`;
+        const apiKunjungan = `${apiBaseUrl}/rekap-poin/jumlah/kunjungan/${idCivitas}`;
+        const apiPinjaman = `${apiBaseUrl}/rekap-poin/jumlah/pinjaman/${idCivitas}`;
 
         try {
             // Ambil jumlah challenge (aksara)

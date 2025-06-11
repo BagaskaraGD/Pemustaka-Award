@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiUrlGet = `http://127.0.0.1:8000/api/kegiatan-count/${idCivitas}`;
+    const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+    const apiUrlGet = `${apiBaseUrl}/kegiatan-count/${idCivitas}`;
 
     fetch(apiUrlGet)
         .then((response) => response.json())
@@ -9,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // document.getElementById("kegiatan-count").textContent =
                     data.count;
                 console.log("Jumlah kegiatan:", data.count); // DEBUG
-                const apiUrlPut = `http://127.0.0.1:8000/api/rekap-poin/kegiatan/${idCivitas}/${data.count}/${totalPoin}`;
+                const apiUrlPut = `${apiBaseUrl}/rekap-poin/kegiatan/${idCivitas}/${data.count}/${totalPoin}`;
 
                 fetch(apiUrlPut, {
                     method: "PUT",
