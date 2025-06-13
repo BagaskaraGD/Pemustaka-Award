@@ -144,7 +144,18 @@ class AksaraController extends Controller
 
     public function viewAksaraDinamika2()
     {
-        return view('Dosen/aksaradinamika');
+                // Blok pengecekan session DIHAPUS, karena sudah ditangani oleh Middleware.
+        $id_civitas = Session::get('civitas')['id_civitas'];
+
+        // Gunakan $this->baseUrl dengan variabel
+        $response = Http::get("{$this->baseUrl}/aksara-dinamika/aksara-user/{$id_civitas}");
+
+        $data = $response->successful() ? $response->json()['data'] : [];
+
+        return view('Dosen/aksaradinamika', [
+            'data' => $data,
+            'civitasId' => $id_civitas
+        ]);
     }
 
     public function viewFormAksaraDinamika1()

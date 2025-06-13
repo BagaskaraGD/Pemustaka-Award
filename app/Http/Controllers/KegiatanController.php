@@ -49,40 +49,46 @@ class KegiatanController extends Controller
         ]);
 
         $civitas = session('civitas')['id_civitas'];
+        $status = session('civitas')['status'];
+        if ($status == 'MHS') {
+            $route = 'kegiatan1';
+        } else {
+            $route = 'kegiatan2';
+        }
 
         // Ambil semua jadwal dari API
-        $response = Http::get('http://127.0.0.1:8000/api/jadwal-kegiatan');
+        $response = Http::get($this->baseUrl .'/jadwal-kegiatan');
         $data = $response->json();
 
         // Cari berdasarkan kode random
         $found = collect($data)->firstWhere('kode_random', $credentials['kode']);
         if (!$found) {
-            return redirect()->route('kegiatan1')->with('error', 'Kode tidak valid');
+            return redirect()->route($route)->with('error', 'Kode tidak valid');
         }
         //dd($request->all());
-        $response = Http::get('http://127.0.0.1:8000/api/hadir-kegiatan/check-kegiatan', [
+        $response = Http::get($this->baseUrl .'/hadir-kegiatan/check-kegiatan', [
             'nim' => $civitas,
             'id_jadwal' => $found['id_jadwal'],
         ]);
         $sudahAbsen = $response->json()['exists'] ?? false;
 
         if ($sudahAbsen) {
-            return redirect()->route('kegiatan1')->with('error', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');
+            return redirect()->route($route)->with('error', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');
         }
 
-        $response = Http::get('http://127.0.0.1:8000/api/hadir-kegiatan/last-idhadir');
+        $response = Http::get($this->baseUrl .'/hadir-kegiatan/last-idhadir');
 
         $lastId = $response->json()['last_id'] ?? 0;
         $newId = $lastId + 1;
 
         // Kirim data ke API absensi
-        $response1 = Http::post('http://127.0.0.1:8000/api/hadir-kegiatan', [
+        $response1 = Http::post($this->baseUrl .'/hadir-kegiatan', [
             'id' => $newId,
             'id_jadwal' => $found['id_jadwal'],
             'nim' => $civitas,
         ]);
         //return response($response1->json());
 
-        return redirect()->route('kegiatan1')->with('success', 'Kehadiran berhasil dicatat');
+        return redirect()->route($route)->with('success', 'Kehadiran berhasil dicatat');
     }
 }

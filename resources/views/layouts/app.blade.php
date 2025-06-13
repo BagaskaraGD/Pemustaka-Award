@@ -1,3 +1,4 @@
+{{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 
@@ -8,80 +9,78 @@
     <meta name="api-base-url" content="{{ config('services.backend.base_url') }}">
     <title>@yield('title', 'Pemustaka Award')</title>
 
-    <!-- Google Fonts -->
+    {{-- Aset CSS dan JS lainnya tetap sama --}}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap">
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/preline@latest/dist/preline.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            window.HSStaticMethods.autoInit();
-        });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
-    </script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        rubik: ["Rubik", "sans-serif"],
-                        russo: ["Russo One", "sans-serif"],
-                    }
-                }
-            }
-        }
-    </script>
-    {{-- Select2 --}}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
+    {{-- ... sisa tag head ... --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 </head>
 
 <body class="bg-gray-200">
+    {{-- Logika Dinamis untuk Sidebar --}}
+    @php
+        $userStatus = session('status');
+        $isDosen = in_array($userStatus, ['DOSEN', 'TENDIK']);
+
+        // Konfigurasi dinamis berdasarkan status
+        $config = [
+            'themeColor' => $isDosen ? '#880e4f' : 'rgba(31,76,109,1)',
+            'themeBgClass' => $isDosen ? 'bg-[#880e4f]' : 'bg-[rgba(31,76,109,1)]',
+            'textColor' => 'text-white',
+            'brandTextColor' => $isDosen ? 'text-[#880e4f]' : 'text-[rgba(31,76,109,1)]',
+            'routes' => [
+                'leaderboard' => $isDosen ? 'leaderboard-dosen' : 'leaderboard-mhs',
+                'profile' => $isDosen ? 'profile-dosen' : 'profile-mhs',
+                'kegiatan' => $isDosen ? 'kegiatan-dosen' : 'kegiatan-mhs',
+                'riwayatkegiatan' => $isDosen ? 'riwayatkegiatan-dosen' : 'riwayatkegiatan-mhs',
+                'aksara' => $isDosen ? 'aksara-dosen' : 'aksara-mhs',
+                'formaksara' => $isDosen ? 'formaksaradinamika-dosen' : 'formaksaradinamika-mhs',
+            ],
+        ];
+    @endphp
 
     <div class="flex">
-        <!-- Sidebar -->
         <aside class="w-64 bg-white p-5 shadow-md h-screen fixed top-0 left-0">
             <h1 class="text-lg font-bold font-rubik">
-                <span class="text-[rgba(31,76,109,1)]">Pemustaka</span> <span class="text-black">Award</span>
+                <span style="color: {{ $config['themeColor'] }}">Pemustaka</span> <span class="text-black">Award</span>
             </h1>
             <nav class="mt-5">
                 <ul>
+                    {{-- Item Leaderboard --}}
                     <li class="mb-3">
                         <div
-                            class="flex items-center p-3 rounded-lg {{ Request::is('leaderboard-mhs') ? 'bg-[rgba(31,76,109,1)] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
-                            <img src="{{ Request::is('leaderboard-mhs') ? asset('assets/images/Leaderboard.png') : asset('assets/images/BlackLeaderboard.png') }}"
+                            class="flex items-center p-3 rounded-lg {{ Request::is($config['routes']['leaderboard']) ? $config['themeBgClass'] . ' ' . $config['textColor'] : 'text-gray-700 hover:bg-gray-100' }}">
+                            <img src="{{ Request::is($config['routes']['leaderboard']) ? asset('assets/images/Leaderboard.png') : asset('assets/images/BlackLeaderboard.png') }}"
                                 alt="Leaderboard Icon" class="w-6 h-6 mr-4">
-                            <a href="{{ url('/leaderboard-mhs') }}" class="font-semibold">Leaderboard</a>
+                            <a href="{{ url($config['routes']['leaderboard']) }}" class="font-semibold">Leaderboard</a>
                         </div>
                     </li>
+                    {{-- Item Profile --}}
                     <li class="mb-3">
                         <div
-                            class="flex items-center p-3 rounded-lg {{ Request::is('profile-mhs') ? 'bg-[rgba(31,76,109,1)] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
-                            <img src="{{ Request::is('profile-mhs') ? asset('assets/images/Profile.png') : asset('assets/images/BlackProfile.png') }}"
+                            class="flex items-center p-3 rounded-lg {{ Request::is($config['routes']['profile']) ? $config['themeBgClass'] . ' ' . $config['textColor'] : 'text-gray-700 hover:bg-gray-100' }}">
+                            <img src="{{ Request::is($config['routes']['profile']) ? asset('assets/images/Profile.png') : asset('assets/images/BlackProfile.png') }}"
                                 alt="Profile Icon" class="w-6 h-6 mr-4">
-                            <a href="{{ url('/profile-mhs') }}" class="font-semibold">Profile</a>
+                            <a href="{{ url($config['routes']['profile']) }}" class="font-semibold">Profile</a>
                         </div>
                     </li>
+                    {{-- Item Kegiatan --}}
                     <li class="mb-3">
                         <div
-                            class="flex items-center p-3 rounded-lg {{ Request::is('kegiatan-mhs') || Request::is('riwayatkegiatan-mhs') ? 'bg-[rgba(31,76,109,1)] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
-                            <img src="{{ Request::is('kegiatan-mhs') || Request::is('riwayatkegiatan-mhs') ? asset('assets/images/Kegiatan.png') : asset('assets/images/BlackKegiatan.png') }}"
+                            class="flex items-center p-3 rounded-lg {{ Request::is($config['routes']['kegiatan']) || Request::is($config['routes']['riwayatkegiatan']) ? $config['themeBgClass'] . ' ' . $config['textColor'] : 'text-gray-700 hover:bg-gray-100' }}">
+                            <img src="{{ Request::is($config['routes']['kegiatan']) || Request::is($config['routes']['riwayatkegiatan']) ? asset('assets/images/Kegiatan.png') : asset('assets/images/BlackKegiatan.png') }}"
                                 alt="Kegiatan Icon" class="w-6 h-6 mr-4">
-                            <a href="{{ url('kegiatan-mhs') }}" class="font-semibold">Kegiatan</a>
+                            <a href="{{ url($config['routes']['kegiatan']) }}" class="font-semibold">Kegiatan</a>
                         </div>
                     </li>
+                    {{-- Item Aksara Dinamika --}}
                     <li class="mb-3">
                         <div
-                            class="flex items-center p-3 rounded-lg {{ Request::is('aksara-mhs') || Request::is('formaksaradinamika-mhs') || Request::is('formaksaradinamika-mhs/edit/*/*/*') ? 'bg-[rgba(31,76,109,1)] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
-                            <img src="{{ Request::is('aksara-mhs') || Request::is('formaksaradinamika-mhs') || Request::is('formaksaradinamika-mhs/edit/*/*/*') ? asset('assets/images/Aksara.png') : asset('assets/images/BlackAksara.png') }}"
+                            class="flex items-center p-3 rounded-lg {{ Request::is($config['routes']['aksara']) || Request::is($config['routes']['formaksara']) || Request::is($config['routes']['formaksara'] . '/edit/*/*/*') ? $config['themeBgClass'] . ' ' . $config['textColor'] : 'text-gray-700 hover:bg-gray-100' }}">
+                            <img src="{{ Request::is($config['routes']['aksara']) || Request::is($config['routes']['formaksara']) || Request::is($config['routes']['formaksara'] . '/edit/*/*/*') ? asset('assets/images/Aksara.png') : asset('assets/images/BlackAksara.png') }}"
                                 alt="Aksara Icon" class="w-6 h-6 mr-4">
-                            <a href="{{ url('aksara-mhs') }}" class="font-semibold">Aksara Dinamika</a>
+                            <a href="{{ url($config['routes']['aksara']) }}" class="font-semibold">Aksara Dinamika</a>
                         </div>
                     </li>
                 </ul>
@@ -98,19 +97,12 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 p-5 ml-64 overflow-y-auto h-screen">
             @yield('content')
         </main>
     </div>
-    {{-- <script src="{{ asset('js/kegiatanrekap.js') }}"></script>
-    <script src="{{ asset('js/challengerekap.js') }}"></script>
-    <script src="{{ asset('js/kunjunganrekap.js') }}"></script>
-    <script src="{{ asset('js/pinjamanrekap.js') }}"></script> --}}
+
     <script src="https://kit.fontawesome.com/a2411311d5.js" crossorigin="anonymous"></script>
-
-
 </body>
-
 
 </html>

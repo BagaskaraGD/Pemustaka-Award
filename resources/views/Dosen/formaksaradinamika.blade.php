@@ -1,4 +1,4 @@
-@extends('layouts.appd')
+@extends('layouts.app')
 
 @section('content')
     <p>ID Civitas: {{ session('civitas')['id_civitas'] }}</p>
@@ -36,12 +36,6 @@
                     </div>
 
                     <div>
-                        <label class="block text-lg font-medium text-gray-700">Yang Merekomendasikan</label>
-                        <select id="rekomendasi" name="rekomendasi"
-                            class="js-data-example-ajax w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                    </div>
-
-                    <div>
                         <label class="block text-lg font-medium text-gray-700">Link Bukti Upload Review di Sosmed</label>
                         <input type="text"
                             class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -58,23 +52,22 @@
             </form>
         </div>
     </div>
-
+    <script>
+        const idCivitas = "{{ session('civitas')['id_civitas'] }}";
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script src="{{ asset('js/caribuku.js') }}"></script>
     <script>
         const routeBukuSearch = "{{ route('buku.search') }}";
     </script>
     <script src="{{ asset('js/caribuku.js') }}"></script>
-
-    <script>
-        const routeRekomendasiSearch = "{{ route('karyawan.search') }}";
-    </script>
-    <script src="{{ asset('js/carikaryawan.js') }}"></script>
-
-    <!-- Modal -->
-    <div id="successModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3 text-center">
+    <div id="successModal"
+        class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50
+                                 transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
+        {{-- Konten modal dengan animasi transform & opacity --}}
+        <div
+            class="bg-white p-6 rounded-lg shadow-lg w-1/3 text-center
+                    transform transition-all duration-300 ease-out scale-95 opacity-0">
             <img src="/assets/images/approve.png" alt="Approve" class="w-30 h-20 mx-auto">
             <p class="mt-2 text-gray-700">Form berhasil dikirim.</p>
             <button onclick="closeSuccessModal()"
@@ -84,8 +77,13 @@
         </div>
     </div>
 
-    <div id="failedModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3 text-center">
+    <div id="failedModal"
+        class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50
+                                transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
+        {{-- Konten modal dengan animasi transform & opacity --}}
+        <div
+            class="bg-white p-6 rounded-lg shadow-lg w-1/3 text-center
+                    transform transition-all duration-300 ease-out scale-95 opacity-0">
             <img src="/assets/images/failed.jpg" alt="failed" class="w-30 h-20 mx-auto">
             <p class="mt-2 text-gray-700">Form Gagal Dikirim.</p>
             <button onclick="closeFailedModal()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
@@ -93,23 +91,67 @@
             </button>
         </div>
     </div>
-    {{-- <-- Script untuk menampilkan modal --> --}}
+
+    {{-- Script untuk menampilkan modal dengan animasi Tailwind --}}
     <script>
+        function openSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const modalContent = modal.querySelector('.bg-white'); // Targetkan konten di dalam modal
+
+            // 1. Tampilkan overlay modal (transisi opacity pada div utama modal)
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+
+            // 2. Animasikan konten modal (scale dan opacity pada div konten)
+            // Menggunakan requestAnimationFrame untuk memastikan browser siap untuk transisi
+            requestAnimationFrame(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            });
+        }
+
         function closeSuccessModal() {
-            document.getElementById('successModal').classList.add('hidden');
+            const modal = document.getElementById('successModal');
+            const modalContent = modal.querySelector('.bg-white');
+
+            // 1. Animasikan konten modal untuk menghilang
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+
+            // 2. Setelah animasi konten selesai, sembunyikan overlay modal
+            setTimeout(() => {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300); // Durasi harus cocok dengan `duration-300` pada kelas transisi
+        }
+
+        function openFailedModal() {
+            const modal = document.getElementById('failedModal');
+            const modalContent = modal.querySelector('.bg-white');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            requestAnimationFrame(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            });
         }
 
         function closeFailedModal() {
-            document.getElementById('failedModal').classList.add('hidden');
+            const modal = document.getElementById('failedModal');
+            const modalContent = modal.querySelector('.bg-white');
+
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
         }
 
-        // Cek jika ada session 'success', maka tampilkan modal
+        // Cek jika ada session 'success' atau 'failed', maka tampilkan modal yang sesuai
         @if (session('success'))
-            document.getElementById('successModal').classList.remove('hidden');
+            openSuccessModal();
         @endif
 
         @if (session('failed'))
-            document.getElementById('failedModal').classList.remove('hidden');
+            openFailedModal();
         @endif
     </script>
 @endsection

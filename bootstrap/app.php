@@ -1,4 +1,5 @@
 <?php
+// bootstrap/app.php
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -11,9 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Daftarkan alias untuk middleware Anda di sini
         $middleware->alias([
             'check.session' => \App\Http\Middleware\CheckSession::class,
+            // Tambahkan alias baru di sini
+            'check.mahasiswa' => \App\Http\Middleware\CheckMahasiswaSession::class,
+            'check.dosen' => \App\Http\Middleware\CheckDosenSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
