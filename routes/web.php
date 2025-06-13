@@ -30,7 +30,7 @@ Route::middleware(['check.mahasiswa'])->group(function () {
     Route::get('/riwayatkegiatan-mhs', [KegiatanController::class, 'viewriwayatKegiatan1'])->name('riwayatkegiatan1');
     Route::get('/aksara-mhs', [AksaraController::class, 'viewAksaraDinamika1'])->name('aksara1');
     Route::get('/formaksaradinamika-mhs', [AksaraController::class, 'viewFormAksaraDinamika1'])->name('formaksaradinamika1');
-    Route::get('/formaksaradinamika-mhs/edit/{id}/{induk_buku}/{nim}', [AksaraController::class, 'viewperbaiki'])->name('aksara.edit');
+    Route::get('/formaksaradinamika-mhs/edit/{id}/{induk_buku}/{nim}', [AksaraController::class, 'viewperbaiki1'])->name('aksara.edit');
     
 });
 
@@ -42,7 +42,7 @@ Route::middleware(['check.dosen'])->group(function () {
     Route::get('/riwayatkegiatan-dosen', [KegiatanController::class, 'viewriwayatKegiatan2'])->name('riwayatkegiatan2');
     Route::get('/aksara-dosen', [AksaraController::class, 'viewAksaraDinamika2'])->name('aksara2');
     Route::get('/formaksaradinamika-dosen', [AksaraController::class, 'viewFormAksaraDinamika2'])->name('formaksaradinamika2');
-    Route::get('/formaksaradinamika-dosen/edit/{id}/{induk_buku}/{nim}', [AksaraController::class, 'viewperbaiki'])->name('aksara.edit');
+    Route::get('/formaksaradinamika-dosen/edit/{id}/{induk_buku}/{nim}', [AksaraController::class, 'viewperbaiki2'])->name('aksara.edit');
 });
 
 

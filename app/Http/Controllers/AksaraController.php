@@ -109,7 +109,7 @@ class AksaraController extends Controller
         }
     }
 
-    public function viewperbaiki(Request $request)
+    public function viewperbaiki1(Request $request)
     {
         $id = $request->id;
         $nim = $request->nim;
@@ -125,6 +125,23 @@ class AksaraController extends Controller
             'civitasId' => $nim
         ]);
     }
+    public function viewperbaiki2(Request $request)
+    {
+        $id = $request->id;
+        $nim = $request->nim;
+        $induk_buku = $request->induk_buku;
+
+        // Gunakan $this->baseUrl dengan variabel
+        $response = Http::get("{$this->baseUrl}/aksara-dinamika/detail-for-edit/{$id}/{$induk_buku}/{$nim}");
+
+        $data = $response->successful() ? $response->json()['data'] : [];
+
+        return view('Dosen/formperbaikanaksara', [
+            'data' => $data,
+            'civitasId' => $nim
+        ]);
+    }
+
 
     public function viewAksaraDinamika1()
     {

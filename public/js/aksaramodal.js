@@ -189,8 +189,10 @@ function closeDitolakModal() {
 }
 
 function handlePerbaikiClick() {
-    if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId) {
+    if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId && currentCivitasId.length == 11) {
         window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
+    } else if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId && currentCivitasId.length != 11) {
+        window.location.href = `/formaksaradinamika-dosen/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
     } else {
         alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
     }

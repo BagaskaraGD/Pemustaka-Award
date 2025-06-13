@@ -10,6 +10,7 @@
     <title>@yield('title', 'Pemustaka Award')</title>
 
     {{-- Aset CSS dan JS lainnya tetap sama --}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>

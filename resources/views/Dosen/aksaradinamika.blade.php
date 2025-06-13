@@ -18,7 +18,7 @@
         {{-- "Info" Button --}}
         <button onclick="openModal()"
             class="transition-all duration-300 ease-in-out transform hover:scale-110 hover:drop-shadow-md cursor-pointer">
-            <i class="fa-sharp fa-solid fa-circle-info fa-3x" style="color: #1f4c6d;"></i>
+            <i class="fa-sharp fa-solid fa-circle-info fa-3x" style="color: #880e4f;"></i>
         </button>
     </div>
 
