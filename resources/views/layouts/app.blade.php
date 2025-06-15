@@ -16,6 +16,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- ... sisa tag head ... --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 </head>
 
 <body class="bg-gray-200">
@@ -104,6 +108,8 @@
     </div>
 
     <script src="https://kit.fontawesome.com/a2411311d5.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    
 </body>
 
 </html>

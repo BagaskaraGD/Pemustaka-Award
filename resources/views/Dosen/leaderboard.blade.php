@@ -7,9 +7,9 @@
 
             <div class="relative">
                 <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    class="text-slate-800 bg-white border border-slate-300 hover:bg-slate-50 focus:ring-4 focus:outline-none focus:ring-slate-200 font-semibold rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center shadow-sm transition-all duration-200"
                     type="button">
-                    Pilih Periode
+                    {{ $selectedPeriodeName ?? 'Pilih Periode' }}
                     <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -18,9 +18,12 @@
                 </button>
 
                 <div id="dropdown"
-                    class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 absolute right-0 mt-2">
-                    <ul id="periodeList" class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                        aria-labelledby="dropdownDefaultButton">
+                    class="z-10 hidden bg-amber-50 divide-y divide-amber-200 rounded-lg shadow-lg w-48 absolute right-0 mt-2 border border-amber-200 p-2
+           transform opacity-0 transition-all duration-300 ease-out"
+                    style="--tw-shadow-color: #d97706; --tw-shadow: var(--tw-shadow-colored);">
+                    {{-- Atribut style ditambahkan untuk shadow berwarna --}}
+                    <ul id="periodeList" class="space-y-1" aria-labelledby="dropdownDefaultButton">
+                        {{-- Konten akan diisi oleh periodedropdown.js --}}
                     </ul>
                 </div>
             </div>

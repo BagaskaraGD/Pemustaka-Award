@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // 1. Tambahkan use statement untuk Request
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -26,30 +26,57 @@ class LeaderboardController extends Controller
         $this->baseUrl = config('services.backend.base_url');
     }
 
-    public function viewLeaderboard1()
+    // --- PERUBAHAN UNTUK LEADERBOARD MAHASISWA ---
+    public function viewLeaderboard1(Request $request) // 2. Tambahkan Request $request
     {
-        $response = Http::get($this->baseUrl .'/rekap-poin/leaderboard/mhs');
+        // 3. Ambil periode_id dari query string, atau null jika tidak ada
+        $periodeId = $request->query('periode');
+
+        // 4. Bangun URL API secara dinamis
+        $apiUrl = $this->baseUrl . '/rekap-poin/leaderboard/mhs';
+        if ($periodeId) {
+            $apiUrl .= '?periode=' . $periodeId;
+        }
+
+        $response = Http::get($apiUrl);
         $data = $response->json();
 
-        $top5 = array_slice($data, 0, 5); // hanya ambil 5 teratas
+        // 5. Ambil nama periode yang dipilih untuk ditampilkan di tombol
+        $selectedPeriodeName = $data['periode_aktif'] ?? 'Periode Saat Ini';
 
-        //dd($top5);
+        $top5 = array_slice($data['leaderboard'] ?? [], 0, 5);
 
-        return view('Mahasiswa.leaderboard', compact('top5'));
+        // 6. Kirim data periode ke view
+        return view('Mahasiswa.leaderboard', compact('top5', 'selectedPeriodeName'));
     }
-    public function viewLeaderboard2()
+
+    // --- PERUBAHAN UNTUK LEADERBOARD DOSEN ---
+    public function viewLeaderboard2(Request $request) // 2. Tambahkan Request $request
     {
-        $response = Http::get($this->baseUrl .'/rekap-poin/leaderboard/dosen');
+        // 3. Ambil periode_id dari query string, atau null jika tidak ada
+        $periodeId = $request->query('periode');
+
+        // 4. Bangun URL API secara dinamis
+        $apiUrl = $this->baseUrl . '/rekap-poin/leaderboard/dosen';
+        if ($periodeId) {
+            $apiUrl .= '?periode=' . $periodeId;
+        }
+
+        $response = Http::get($apiUrl);
         $data = $response->json();
 
-        $top5 = array_slice($data, 0, 5); // hanya ambil 5 teratas
+        // 5. Ambil nama periode yang dipilih untuk ditampilkan di tombol
+        $selectedPeriodeName = $data['periode_aktif'] ?? 'Periode Saat Ini';
 
-        //dd($top5);
-        return view('Dosen/leaderboard', compact('top5'));
+        $top5 = array_slice($data['leaderboard'] ?? [], 0, 5);
+
+        // 6. Kirim data periode ke view
+        return view('Dosen/leaderboard', compact('top5', 'selectedPeriodeName'));
     }
+
     public function viewdropdownperiode()
     {
-        $response = Http::get($this->baseUrl .'/periode');
+        $response = Http::get($this->baseUrl . '/periode');
         $data = $response->json();
         return response()->json($data); // return JSON, bukan view
     }
