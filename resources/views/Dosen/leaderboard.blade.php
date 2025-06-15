@@ -18,10 +18,9 @@
                 </button>
 
                 <div id="dropdown"
-                    class="z-10 hidden bg-amber-50 divide-y divide-amber-200 rounded-lg shadow-lg w-48 absolute right-0 mt-2 border border-amber-200 p-2
-           transform opacity-0 transition-all duration-300 ease-out"
-                    style="--tw-shadow-color: #d97706; --tw-shadow: var(--tw-shadow-colored);">
-                    {{-- Atribut style ditambahkan untuk shadow berwarna --}}
+                    class="z-10 hidden bg-amber-50 divide-y divide-amber-50 rounded-lg shadow-lg w-48 absolute right-0 mt-2 border border-amber-50 p-2
+                    transition-all duration-300 ease-out"
+                    {{-- HAPUS transform dan opacity-0 --}} style="--tw-shadow-color: white; --tw-shadow: var(--tw-shadow-colored);">
                     <ul id="periodeList" class="space-y-1" aria-labelledby="dropdownDefaultButton">
                         {{-- Konten akan diisi oleh periodedropdown.js --}}
                     </ul>
