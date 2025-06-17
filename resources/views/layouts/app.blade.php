@@ -18,47 +18,159 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
 
     <style>
+        /* Base transition */
         #sidebar,
         #main-content {
             transition: all 0.3s ease-in-out;
         }
 
-        .nav-text {
-            transition: opacity 0.2s ease-in-out, width 0.3s ease-in-out;
-            white-space: nowrap;
-            overflow: hidden;
+        /* Desktop Styles (768px and up) */
+        @media (min-width: 768px) {
+            #sidebar {
+                width: 16rem;
+                /* 256px */
+                height: 100vh;
+                position: fixed;
+                top: 0;
+                left: 0;
+                display: flex;
+                flex-direction: column;
+                background-color: white;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            }
+
+            #sidebar.closed {
+                width: 5rem;
+                /* 80px */
+            }
+
+            .nav-text {
+                transition: opacity 0.2s ease, max-width 0.3s ease;
+                white-space: nowrap;
+                overflow: hidden;
+                max-width: 150px;
+            }
+
+            #sidebar.closed .nav-text,
+            #sidebar.closed .brand-text {
+                opacity: 0;
+                max-width: 0;
+            }
+
+            #sidebar.closed .sidebar-header,
+            #sidebar.closed .nav-link,
+            #sidebar.closed .logout-button-desktop {
+                justify-content: center;
+            }
+
+            #sidebar.closed .nav-link img,
+            #sidebar.closed .nav-link i,
+            #sidebar.closed .logout-button-desktop i {
+                margin-right: 0;
+            }
+
+            #main-content {
+                margin-left: 16rem;
+                /* 256px */
+            }
+
+            #main-content.sidebar-closed {
+                margin-left: 5rem;
+                /* 80px */
+            }
+
+            .logout-button-mobile {
+                display: none;
+                /* Sembunyikan tombol logout mobile di desktop */
+            }
         }
 
-        #sidebar.closed .nav-text {
-            opacity: 0;
-            width: 0;
-        }
+        /* Mobile Styles (less than 768px) */
+        @media (max-width: 767px) {
+            body {
+                padding-bottom: 60px;
+                /* Space for bottom nav */
+            }
 
-        #sidebar.closed .sidebar-header {
-            justify-content: center;
-        }
+            #sidebar {
+                width: 100%;
+                height: 60px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                top: auto;
+                flex-direction: row;
+                justify-content: space-around;
+                z-index: 50;
+                background-color: white;
+                border-top: 1px solid #e5e7eb;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
 
-        #sidebar.closed .brand-text {
-            display: none;
-        }
+            #sidebar .sidebar-header,
+            #sidebar .logout-button-desktop {
+                display: none;
+                /* Sembunyikan header dan logout desktop di mobile */
+            }
 
-        #sidebar.closed .nav-link,
-        #sidebar.closed .logout-button {
-            justify-content: center;
-        }
+            #sidebar nav {
+                width: 100%;
+            }
 
-        #sidebar.closed .nav-link img,
-        #sidebar.closed .nav-link i,
-        #sidebar.closed .logout-button i {
-            margin-right: 0;
+            #sidebar nav ul {
+                display: flex;
+                justify-content: space-around;
+                width: 100%;
+                height: 100%;
+            }
+
+            #sidebar nav ul li {
+                flex: 1;
+                margin-bottom: 0;
+            }
+
+            #sidebar .nav-link {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                padding: 0.25rem 0;
+                border-radius: 0;
+            }
+
+            #sidebar .nav-link img,
+            #sidebar .nav-link i {
+                margin-right: 0;
+                margin-bottom: 2px;
+                width: 1.25rem;
+                /* 20px */
+                height: 1.25rem;
+                /* 20px */
+            }
+
+            #sidebar .nav-text {
+                font-size: 0.65rem;
+                line-height: 1;
+            }
+
+            .logout-button-mobile {
+                color: #ef4444;
+                /* Warna merah untuk logout */
+            }
+
+            .logout-button-mobile .fa-sign-out-alt {
+                color: #ef4444 !important;
+            }
+
+            #main-content {
+                margin-left: 0;
+            }
         }
-        
     </style>
 </head>
 
-<body class="bg-gray-200">
+<body class="bg-gray-100">
     @php
-        // Logika PHP tetap sama
         $userStatus = session('status');
         $isDosen = in_array($userStatus, ['DOSEN', 'TENDIK']);
         $config = [
@@ -77,13 +189,13 @@
     @endphp
 
     <div class="flex">
-        <aside id="sidebar" class="w-64 bg-white p-4 shadow-md h-screen fixed top-0 left-0 flex flex-col">
-            <div class="flex items-center justify-between mb-5 sidebar-header">
-                <h1 class="text-lg font-bold font-rubik nav-text brand-text">
-                    <span style="color: {{ $config['themeColor'] }}">Pemustaka</span> <span
+        <aside id="sidebar">
+            <div class="sidebar-header flex items-center justify-between mb-5 p-4">
+                <h1 class="text-lg font-bold font-rubik brand-text">
+                    <span style="color: {{ $config['themeColor'] }}">Pemustaka</span><span
                         class="text-black">Award</span>
                 </h1>
-                <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 focus:outline-none">
+                <button id="sidebar-toggle" class="p-3 rounded-md hover:bg-gray-200 focus:outline-none">
                     <i class="fa-solid fa-bars" style="color: {{ $config['themeColor'] }};"></i>
                 </button>
             </div>
@@ -116,7 +228,7 @@
                                 'related_route' => $config['routes']['formaksara'],
                                 'icon_active' => 'Aksara.png',
                                 'icon_inactive' => 'BlackAksara.png',
-                                'label' => 'Aksara Dinamika',
+                                'label' => 'Aksara',
                             ],
                         ];
                     @endphp
@@ -124,29 +236,41 @@
                     @foreach ($menuItems as $item)
                         @php
                             $isActive =
-                                Request::is($item['route']) ||
+                                Request::is(ltrim($item['route'], '/')) ||
                                 (isset($item['related_route']) &&
-                                    (Request::is($item['related_route']) ||
-                                        Request::is($item['related_route'] . '/*')));
+                                    (Request::is(ltrim($item['related_route'], '/')) ||
+                                        Request::is(ltrim($item['related_route'], '/') . '/*')));
                         @endphp
-                        <li class="mb-3">
+                        <li class="mb-2">
                             <a href="{{ url($item['route']) }}"
-                                class="flex items-center p-3 rounded-lg nav-link {{ $isActive ? $config['themeBgClass'] . ' ' . $config['textColor'] . ' shadow-md' : 'text-gray-700 hover:bg-gray-100' }}">
+                                class="nav-link flex items-center p-3 rounded-lg {{ $isActive ? $config['themeBgClass'] . ' ' . $config['textColor'] . ' shadow-md' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <img src="{{ asset('assets/images/' . ($isActive ? $item['icon_active'] : $item['icon_inactive'])) }}"
                                     alt="{{ $item['label'] }} Icon" class="w-6 h-6 mr-4 shrink-0">
                                 <span class="font-semibold nav-text">{{ $item['label'] }}</span>
                             </a>
                         </li>
                     @endforeach
+
+                    {{-- PERBAIKAN: Tombol Logout untuk Mobile --}}
+                    <li class="logout-button-mobile">
+                        <form action="{{ route('logout') }}" method="POST" class="w-full">
+                            @csrf
+                            <button type="submit"
+                                class="nav-link flex items-center p-3 rounded-lg text-red-500 hover:bg-red-100 w-full">
+                                <i class="fas fa-sign-out-alt w-6 h-6 mr-4 shrink-0"></i>
+                                <span class="font-semibold nav-text">Logout</span>
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </nav>
 
-            <div class="mt-auto">
-                <form action="{{ route('logout') }}" method="POST">
-                    {{-- PERBAIKAN: Kode @csrf yang sebelumnya terhapus, kini sudah dikembalikan. --}}
+            {{-- PERBAIKAN: Tombol Logout hanya untuk Desktop --}}
+            <div class="mt-auto logout-button-desktop">
+                <form action="{{ route('logout') }}" method="POST" class="p-4">
                     @csrf
                     <button type="submit"
-                        class="w-full flex items-center p-3 rounded-lg text-red-500 hover:bg-red-100 logout-button">
+                        class="w-full flex items-center p-3 rounded-lg text-red-500 hover:bg-red-100">
                         <i class="fas fa-sign-out-alt w-6 h-6 mr-4 shrink-0"></i>
                         <span class="font-semibold nav-text">Logout</span>
                     </button>
@@ -154,14 +278,58 @@
             </div>
         </aside>
 
-        <main id="main-content" class="flex-1 p-5 ml-64 overflow-y-auto h-screen">
+        <main id="main-content" class="flex-1 p-5 overflow-y-auto">
             @yield('content')
         </main>
     </div>
 
     <script src="https://kit.fontawesome.com/a2411311d5.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="{{ asset('js/sidebar.js') }}" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+            const toggleButton = document.getElementById("sidebar-toggle");
+
+            if (!sidebar || !mainContent || !toggleButton) return;
+
+            const applySidebarState = (state) => {
+                if (window.innerWidth < 768) return;
+                if (state === "closed") {
+                    sidebar.classList.add("closed");
+                    mainContent.classList.add("sidebar-closed");
+                } else {
+                    sidebar.classList.remove("closed");
+                    mainContent.classList.remove("sidebar-closed");
+                }
+            };
+
+            const savedState = localStorage.getItem("sidebarState");
+            applySidebarState(savedState || "open");
+
+            toggleButton.addEventListener("click", function() {
+                const isClosed = sidebar.classList.contains("closed");
+                const newState = isClosed ? "open" : "closed";
+                applySidebarState(newState);
+                localStorage.setItem("sidebarState", newState);
+            });
+
+            const handleResize = () => {
+                if (window.innerWidth >= 768) {
+                    mainContent.style.paddingBottom = '0';
+                    const currentState = localStorage.getItem("sidebarState") || "open";
+                    applySidebarState(currentState);
+                } else {
+                    mainContent.style.paddingBottom = '80px';
+                    sidebar.classList.remove("closed");
+                    mainContent.classList.remove("sidebar-closed");
+                }
+            };
+
+            window.addEventListener('resize', handleResize);
+            handleResize(); // Initial check
+        });
+    </script>
 </body>
 
 </html>

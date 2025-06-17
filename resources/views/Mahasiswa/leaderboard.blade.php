@@ -81,55 +81,61 @@
 
 
         <div class="overflow-hidden rounded-b-[25px] w-full bg-white">
-            <table class="w-full text-gray-700 border-collapse">
-                <thead class="p-0">
-                    <tr class="bg-white border-t border-gray-300">
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th>
-                        <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($top5 as $index => $user)
-                        @php
-                            $userPhoto = asset('assets/images/profile.png'); // Default photo
-                            if (isset($user['jkel'])) {
-                                // Pastikan field 'jkel' ada
-                                $gender = strtolower(trim($user['jkel']));
-                                if ($gender == 'pria' || $gender == 'l') {
-                                    $userPhoto = asset('assets/images/Cylo.png');
-                                } elseif ($gender == 'wanita' || $gender == 'p') {
-                                    $userPhoto = asset('assets/images/Cyla.png');
-                                }
-                            }
-                        @endphp
-                        <tr class="{{ $index % 2 == 0 ? 'bg-gray-100' : 'bg-white' }}">
-                            <td class="p-3">
-                                <span
-                                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[rgba(251,195,77,1)] text-[rgba(31,76,109,1)] font-medium border border-gray-300">
-                                    {{ $index + 1 }}
-                                </span>
-                            </td>
-                            <td class="p-3">
-                                <img src="{{ $userPhoto }}" alt="Profile {{ $user['nama'] ?? '' }}"
-                                    class="w-6 h-6 object-cover rounded-full">
-                            </td>
-                            <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['nama'] ?? '-' }}</td>
-                            <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['nim'] ?? '-' }}</td>
-                            <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['status'] ?? '-' }}</td>
-                            <td class="p-3 text-center font-russo text-[rgba(31,76,109,1)]">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
-                                    <span>{{ $user['total_rekap_poin'] ?? 0 }}</span>
-                                </div>
-                            </td>
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                <table class="min-w-full text-gray-700 border-collapse">
+                    <thead class="p-0">
+                        <tr class="bg-white border-t border-gray-300">
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th>
+                            <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($top5 as $index => $user)
+                            @php
+                                $userPhoto = asset('assets/images/profile.png'); // Default photo
+                                if (isset($user['jkel'])) {
+                                    // Pastikan field 'jkel' ada
+                                    $gender = strtolower(trim($user['jkel']));
+                                    if ($gender == 'pria' || $gender == 'l') {
+                                        $userPhoto = asset('assets/images/Cylo.png');
+                                    } elseif ($gender == 'wanita' || $gender == 'p') {
+                                        $userPhoto = asset('assets/images/Cyla.png');
+                                    }
+                                }
+                            @endphp
+                            <tr class="{{ $index % 2 == 0 ? 'bg-gray-100' : 'bg-white' }}">
+                                <td class="p-3">
+                                    <span
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[rgba(251,195,77,1)] text-[rgba(31,76,109,1)] font-medium border border-gray-300">
+                                        {{ $index + 1 }}
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    <img src="{{ $userPhoto }}" alt="Profile {{ $user['nama'] ?? '' }}"
+                                        class="w-6 h-6 object-cover rounded-full">
+                                </td>
+                                <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['nama'] ?? '-' }}
+                                </td>
+                                <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['nim'] ?? '-' }}
+                                </td>
+                                <td class="p-3 font-rubik font-bold text-[rgba(31,76,109,1)]">{{ $user['status'] ?? '-' }}
+                                </td>
+                                <td class="p-3 text-center font-russo text-[rgba(31,76,109,1)]">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <img src="{{ asset('assets/images/Poin.png') }}" alt="Poin Icon" class="w-5 h-5">
+                                        <span>{{ $user['total_rekap_poin'] ?? 0 }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+            </div>
         </div>
         <br>
 
@@ -139,21 +145,24 @@
             </h3>
         </div>
         <div class="overflow-hidden rounded-b-[25px] w-full bg-white">
-            <table class="w-full text-gray-700 border-collapse">
-                <thead class="p-0">
-                    {{-- Header tabel My Ranking disamakan dengan Top 5 --}}
-                    <tr class="bg-white border-t border-gray-300">
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
-                        <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th> {{-- Diubah dari Email menjadi Status --}}
-                        <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
-                    </tr>
-                </thead>
-                <tbody onclick="window.location.href='{{ route('profile1') }}'" id="myRankingTableBody">
-                </tbody>
-            </table>
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                {{-- Tabel My Ranking --}}
+                <table class="min-w-full text-gray-700 border-collapse">
+                    <thead class="p-0">
+                        {{-- Header tabel My Ranking disamakan dengan Top 5 --}}
+                        <tr class="bg-white border-t border-gray-300">
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Place</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th> {{-- Diubah dari Email menjadi Status --}}
+                            <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody onclick="window.location.href='{{ route('profile1') }}'" id="myRankingTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
     <script src="{{ asset('js/periodedropdown.js') }}"></script>
