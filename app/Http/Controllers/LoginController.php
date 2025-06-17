@@ -2,31 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class LoginController extends Controller
 {
-    /**
-     * URL dasar untuk API backend.
-     * Diambil dari config/services.php yang membaca file .env
-     *
-     * @var string
-     */
     protected $baseUrl;
 
-    /**
-     * Constructor untuk menginisialisasi base URL.
-     */
     public function __construct()
     {
-        // Mengambil base URL dari file konfigurasi sekali saja.
-        $this->baseUrl = config('services.backend.base_url');
+        $this->baseUrl = env('API_BASE_URL', 'http://127.0.0.1:8000/api');
     }
-    public function viewLoginForm()
+
+    public function showLoginForm()
     {
         return view('formlogin');
     }
@@ -36,7 +27,7 @@ class LoginController extends Controller
             'nocivitas' => ['required'],
         ]);
         //dd($credentials);
-        $response = Http::get($this->baseUrl .'/civitas');
+        $response = Http::get($this->baseUrl . '/civitas');
         $data = $response->json();
         $found = collect($data)->firstWhere('id_civitas', $credentials['nocivitas']);
         //dd($data);
@@ -59,6 +50,26 @@ class LoginController extends Controller
 
             Session::put('foto_profil', $foto);
 
+            // LANGKAH BARU: Cek Status Periode dari API
+            try {
+                $periodResponse = Http::get($this->baseUrl . '/periode/status-terkini');
+                if ($periodResponse->successful()) {
+                    $periodData = $periodResponse->json();
+                    session(['period_data' => $periodData]); // Simpan di session
+
+                    // Jika periode berakhir, arahkan ke halaman pemenang
+                    if (isset($periodData['status']) && $periodData['status'] === 'berakhir') {
+                        return redirect()->route('winner.show');
+                    }
+                } else {
+                    // Gagal mengambil data periode, lanjutkan ke flow normal
+                    session(['period_data' => ['status' => 'aktif']]);
+                }
+            } catch (\Exception $e) {
+                // Jika API tidak terjangkau, asumsikan periode aktif
+                session(['period_data' => ['status' => 'aktif']]);
+            }
+
             if ($found['status'] == 'MHS') {
                 Session::put('status', $found['status']);
                 return redirect()->route('leaderboard1');
@@ -75,10 +86,12 @@ class LoginController extends Controller
             'nocivitas' => 'The provided credentials do not match our records.',
         ])->onlyInput('nocivitas');
     }
+
+    
+
     public function logout(Request $request)
     {
-        $request->session()->flush();
-        Auth::logout();
-        return redirect()->route('login')->with('success', 'Anda berhasil logout.');
+        Session::flush();
+        return redirect()->route('login');
     }
 }

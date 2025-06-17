@@ -14,9 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'check.session' => \App\Http\Middleware\CheckSession::class,
-            // Tambahkan alias baru di sini
             'check.mahasiswa' => \App\Http\Middleware\CheckMahasiswaSession::class,
             'check.dosen' => \App\Http\Middleware\CheckDosenSession::class,
+            'period.status' => \App\Http\Middleware\CheckPeriodStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
