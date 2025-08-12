@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="api-base-url" content="{{ config('services.backend.base_url') }}">
+     <meta name="base-url" content="{{ url('/') }}">
     <title>@yield('title', 'Pemustaka Award')</title>
 
     {{-- Aset CSS dan JS --}}
@@ -193,7 +194,7 @@
             <div class="sidebar-header flex items-center justify-between mb-5 p-4">
                 <h1 class="text-lg font-bold font-rubik brand-text">
                     <span style="color: {{ $config['themeColor'] }}">Pemustaka</span><span
-                        class="text-black">Award</span>
+                        class="text-black"> Award</span>
                 </h1>
                 <button id="sidebar-toggle" class="p-3 rounded-md hover:bg-gray-200 focus:outline-none">
                     <i class="fa-solid fa-bars" style="color: {{ $config['themeColor'] }};"></i>
@@ -228,7 +229,7 @@
                                 'related_route' => $config['routes']['formaksara'],
                                 'icon_active' => 'Aksara.png',
                                 'icon_inactive' => 'BlackAksara.png',
-                                'label' => 'Aksara',
+                                'label' => 'Aksara Dinamika',
                             ],
                         ];
                     @endphp

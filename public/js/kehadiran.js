@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+    const apiBaseUrl = document
+        .querySelector('meta[name="api-base-url"]')
+        .getAttribute("content");
     const apiUrl = `${apiBaseUrl}/hadir-kegiatan/kehadiran/${idCivitas}`;
     const activityListContainer = document.getElementById(
         "activity-list-container"
@@ -189,16 +191,30 @@ document.addEventListener("DOMContentLoaded", function () {
                         sesiIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`;
                     // Hapus td untuk tombol cetak per sesi
+                    const tglKegiatanFormatted = new Date(
+                        sesi.tgl_kegiatan
+                    ).toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "short", // atau 'long' jika ingin nama bulan lengkap
+                        year: "numeric",
+                    });
+                    const jamKegiatanFormatted = sesi.jam_kegiatan; // Asumsi format ini sudah OK, jika tidak, perlu parsing lebih lanjut
+
                     sessionRow.innerHTML = `
                         <td class="p-3 text-left text-sm text-gray-700 pl-10 border-l-4 border-blue-200">
                             Sesi ${sesiIndex + 1}
                         </td>
-                        <td class="p-3 text-left text-sm text-gray-600">${
-                            sesi.tgl_kegiatan
-                        }</td>
-                        <td class="p-3 text-left text-sm text-gray-600">${
-                            sesi.jam_kegiatan
-                        }</td>
+                        <td class="p-3 text-left text-sm text-gray-600">
+                            <div class="flex items-center space-x-2">
+                                <i class="far fa-calendar-alt text-blue-500"></i>
+                                <span>${tglKegiatanFormatted}</span>
+                            </div>
+                        </td>
+                        <td class="p-3 text-left text-sm text-gray-600">
+                            <span class="inline-flex items-center px-2 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-semibold">
+                                <i class="far fa-clock text-purple-500 mr-1"></i> ${jamKegiatanFormatted}
+                            </span>
+                        </td>
                         <td class="p-3 text-left text-sm text-gray-600">${
                             sesi.nama_pemateri
                         }</td>
@@ -262,16 +278,22 @@ document.addEventListener("DOMContentLoaded", function () {
             .querySelectorAll(".print-activity-certificate-button")
             .forEach((button) => {
                 button.addEventListener("click", function (event) {
-                    event.stopPropagation(); // Hentikan propagasi agar tidak mentrigger toggle sesi
+                    event.stopPropagation(); // Mencegah klik menyebar ke elemen lain
+
+                    // 1. URL ngrok aplikasi admin Anda
+                    const adminAppUrl =
+                        "https://6057-118-99-123-12.ngrok-free.app";
+
+                    // 2. Ambil ID Kegiatan dari atribut tombol
                     const kegiatanId = this.getAttribute("data-kegiatan-id");
-                    console.log(
-                        `Cetak sertifikat untuk kegiatan ID: ${kegiatanId}`
-                    );
-                    // Di sini Anda akan memanggil fungsi untuk mencetak sertifikat
-                    // Misalnya: window.open(`/cetak-sertifikat/kegiatan/${kegiatanId}`, '_blank');
-                    alert(
-                        `Fungsi cetak untuk kegiatan ID ${kegiatanId} belum diimplementasikan.`
-                    );
+
+                    // 3. Buat URL lengkap ke generator sertifikat
+                    //    Variabel `idCivitas` sudah ada dari file Blade Anda (yang berisi NIM)
+                    const urlSertifikat = `${adminAppUrl}/sertifikat/generate/kegiatan/${kegiatanId}/peserta/${idCivitas}`;
+
+                    // 4. Buka URL di tab baru untuk memulai unduhan PDF
+                    console.log("Membuka URL Sertifikat:", urlSertifikat);
+                    window.open(urlSertifikat, "_blank");
                 });
             });
 

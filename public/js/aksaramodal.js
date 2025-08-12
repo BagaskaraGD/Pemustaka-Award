@@ -1,5 +1,7 @@
-// public/js/aksaramodal.js
-const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+const apiBaseUrl = document
+    .querySelector('meta[name="api-base-url"]')
+    .getAttribute("content");
+
 // Fungsi untuk membuka modal informasi umum (yang sudah ada)
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
@@ -69,7 +71,7 @@ async function openHistoryModal(
                 latestAdminKeterangan = latestDitolakEntry.keterangan;
             }
 
-            historyData.forEach((entry) => {
+            sortedHistory.forEach((entry) => {
                 const itemDiv = document.createElement("div");
                 itemDiv.classList.add("relative", "mb-4", "pb-4");
 
@@ -85,11 +87,12 @@ async function openHistoryModal(
                     "bg-white",
                     "z-10"
                 );
-                if (entry.status === "ditolak") {
+                if (entry.status.toLowerCase() === "ditolak") {
                     dot.classList.add("border-red-500", "bg-red-200");
-                } else if (entry.status === "diterima") {
+                } else if (entry.status.toLowerCase() === "diterima") {
                     dot.classList.add("border-green-500", "bg-green-200");
                 } else {
+                    // Termasuk "menunggu"
                     dot.classList.add("border-gray-500", "bg-gray-200");
                 }
 
@@ -105,9 +108,9 @@ async function openHistoryModal(
 
                 const statusP = document.createElement("p");
                 statusP.classList.add("font-semibold", "text-lg");
-                if (entry.status === "ditolak") {
+                if (entry.status.toLowerCase() === "ditolak") {
                     statusP.classList.add("text-red-700");
-                } else if (entry.status === "diterima") {
+                } else if (entry.status.toLowerCase() === "diterima") {
                     statusP.classList.add("text-green-700");
                 } else {
                     statusP.classList.add("text-gray-700");
@@ -122,6 +125,9 @@ async function openHistoryModal(
                     entry.tgl_status
                 ).toLocaleString("id-ID")}`;
 
+                contentDiv.appendChild(statusP);
+                contentDiv.appendChild(dateP);
+
                 if (
                     entry.keterangan &&
                     entry.keterangan.trim() !== "" &&
@@ -131,14 +137,18 @@ async function openHistoryModal(
                     keteranganP.classList.add(
                         "text-base",
                         "text-gray-800",
-                        "mt-2"
+                        "mt-2",
+                        "pt-2",
+                        "border-t",
+                        "border-gray-200"
                     );
-                    keteranganP.textContent = `Keterangan: ${entry.keterangan}`;
+                    if (entry.status.toLowerCase() === "ditolak" )
+                    {
+                        keteranganP.textContent = `Keterangan: ${entry.keterangan}`;
+                    }
                     contentDiv.appendChild(keteranganP);
                 }
 
-                contentDiv.appendChild(statusP);
-                contentDiv.appendChild(dateP);
                 itemDiv.appendChild(dot);
                 itemDiv.appendChild(contentDiv);
                 reviewHistoryItems.appendChild(itemDiv);
@@ -154,7 +164,7 @@ async function openHistoryModal(
         latestAdminKeterangan = adminKeterangan || "Gagal memuat keterangan.";
     }
 
-   if (status === "ditolak") {
+    if (status === "ditolak") {
         modalTitle.textContent = "Status Ditolak";
         modalTitle.className =
             "text-3xl font-extrabold text-red-600 mb-4 border-b-2 border-red-200 pb-2 text-center";
@@ -169,7 +179,8 @@ async function openHistoryModal(
         ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" telah diterima.`;
         adminKeteranganContainer.classList.add("hidden");
         perbaikiButton.classList.add("hidden");
-    } else if (status === "menunggu") { // TAMBAHKAN BLOK INI
+    } else if (status === "menunggu") {
+        // BLOK YANG DIUBAH ADA DI SINI
         modalTitle.textContent = "Status Menunggu";
         modalTitle.className =
             "text-3xl font-extrabold text-blue-600 mb-4 border-b-2 border-blue-200 pb-2 text-center";
@@ -189,9 +200,19 @@ function closeDitolakModal() {
 }
 
 function handlePerbaikiClick() {
-    if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId && currentCivitasId.length == 11) {
+    if (
+        currentIndukBuku &&
+        currentCivitasId &&
+        currentAksaraDinamikaId &&
+        currentCivitasId.length == 11
+    ) {
         window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
-    } else if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId && currentCivitasId.length != 11) {
+    } else if (
+        currentIndukBuku &&
+        currentCivitasId &&
+        currentAksaraDinamikaId &&
+        currentCivitasId.length != 11
+    ) {
         window.location.href = `/formaksaradinamika-dosen/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
     } else {
         alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
@@ -284,23 +305,44 @@ function renderAksaraPaginationControls(totalItems) {
         )
     );
 
-    for (let i = 1; i <= totalPages; i++) {
-        if (
-            totalPages > 5 &&
-            i > 2 &&
-            i < totalPages - 1 &&
-            Math.abs(i - aksaraCurrentPage) > 1
-        ) {
-            if (!paginationControls.querySelector(".ellipsis")) {
-                const ellipsis = document.createElement("span");
-                ellipsis.textContent = "...";
-                ellipsis.className = "px-3 py-1 mx-1 text-sm";
-                ellipsis.classList.add("ellipsis");
-                paginationControls.appendChild(ellipsis);
-            }
-            continue;
+    // Logic to show pagination numbers
+    const maxPagesToShow = 5;
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxPagesToShow) {
+        const halfPages = Math.floor(maxPagesToShow / 2);
+        startPage = Math.max(aksaraCurrentPage - halfPages, 1);
+        endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+        if (endPage === totalPages) {
+            startPage = Math.max(totalPages - maxPagesToShow + 1, 1);
         }
+    }
+
+    if (startPage > 1) {
+        paginationControls.appendChild(createButton("1", 1));
+        if (startPage > 2) {
+            const ellipsis = document.createElement("span");
+            ellipsis.textContent = "...";
+            ellipsis.className = "px-3 py-1 mx-1 text-sm";
+            paginationControls.appendChild(ellipsis);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
         paginationControls.appendChild(createButton(i.toString(), i));
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement("span");
+            ellipsis.textContent = "...";
+            ellipsis.className = "px-3 py-1 mx-1 text-sm";
+            paginationControls.appendChild(ellipsis);
+        }
+        paginationControls.appendChild(
+            createButton(totalPages.toString(), totalPages)
+        );
     }
 
     paginationControls.appendChild(
@@ -326,26 +368,29 @@ function filterTable() {
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("dataTable");
     if (tableBody) {
+        // Simpan semua baris dari HTML asli
         allAksaraDataRows = Array.from(tableBody.querySelectorAll("tr"));
 
+        // Cek jika div paginasi sudah ada, jika tidak, buat dan tambahkan
         let paginationDiv = document.getElementById("aksaraTablePagination");
         if (!paginationDiv) {
             paginationDiv = document.createElement("div");
             paginationDiv.id = "aksaraTablePagination";
             paginationDiv.className =
-                "flex justify-center items-center space-x-1 mt-4";
+                "flex justify-center items-center flex-wrap space-x-1 mt-4"; // flex-wrap untuk mobile
             const tableContainer = tableBody.closest(".overflow-x-auto");
             if (tableContainer && tableContainer.parentNode) {
+                // Letakkan setelah container tabel
                 tableContainer.parentNode.insertBefore(
                     paginationDiv,
                     tableContainer.nextSibling
                 );
             } else {
+                // Fallback jika struktur tidak seperti yang diharapkan
                 tableBody.insertAdjacentElement("afterend", paginationDiv);
             }
         }
-        // Untuk render awal, kita panggil filterTable. Ini akan secara otomatis
-        // menampilkan semua data (karena searchInput kosong) dan mengatur halaman ke 1.
+        // Render tabel dan paginasi untuk pertama kali
         filterTable();
     }
 

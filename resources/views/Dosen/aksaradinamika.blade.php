@@ -1,4 +1,5 @@
 @extends('layouts.app') {{-- Pastikan Anda memiliki layout bernama 'app' --}}
+<?php use Carbon\Carbon; ?>
 
 @section('content')
     {{-- Memuat file JavaScript eksternal --}}
@@ -10,7 +11,7 @@
         {{-- Main Content --}}
         <div class="flex items-center gap-x-4">
             {{-- "Tambah Review" Button --}}
-            <a href="/formaksaradinamika-mhs">
+            <a href="/formaksaradinamika-dosen">
                 <div
                     class="w-12 h-12 rounded-full bg-[#880e4f] flex items-center justify-center
                            transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg cursor-pointer">
@@ -46,6 +47,42 @@
                     </thead>
                     <tbody id="dataTable" class="bg-white divide-y divide-gray-100">
                         @foreach ($data as $item)
+                            <?php
+                            // Menggunakan Carbon untuk format tanggal yang lebih cantik
+                            $formattedDate = '';
+                            if (isset($item['tgl_konfirmasi'])) {
+                                try {
+                                    $carbonDate = Carbon::parse($item['tgl_konfirmasi']);
+                                    $formattedDate = $carbonDate->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
+                                } catch (\Exception $e) {
+                                    $formattedDate = $item['tgl_konfirmasi']; // Fallback jika parsing gagal
+                                }
+                            }
+                            
+                            // Tentukan warna dan ikon berdasarkan status
+                            $statusClass = '';
+                            $statusIcon = '';
+                            $statusText = strtoupper($item['status']); // Pastikan status dalam huruf besar untuk konsistensi
+                            
+                            switch (strtolower($item['status'])) {
+                                case 'menunggu':
+                                    $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                                    $statusIcon = 'fa-clock'; // Ikon jam
+                                    break;
+                                case 'diterima':
+                                    $statusClass = 'bg-green-100 text-green-800 border-green-200';
+                                    $statusIcon = 'fa-check-circle'; // Ikon centang
+                                    break;
+                                case 'ditolak':
+                                    $statusClass = 'bg-red-100 text-red-800 border-red-200';
+                                    $statusIcon = 'fa-times-circle'; // Ikon silang
+                                    break;
+                                default:
+                                    $statusClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                                    $statusIcon = 'fa-info-circle'; // Ikon info default
+                                    break;
+                            }
+                            ?>
                             <tr class="hover:bg-gray-50 cursor-pointer
                                   transition-all duration-300 ease-in-out hover:shadow-md hover:translate-y-[-2px]"
                                 onclick="openHistoryModal(
@@ -59,14 +96,23 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ $item['judul'] }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['tgl_review'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div class="flex items-center space-x-2 text-gray-600">
+                                        <i class="far fa-calendar-alt text-gray-500"></i>
+                                        <span>{{ $formattedDate }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['nama_periode'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700">
+                                        <i class="fas fa-calendar-check mr-1 text-gray-500"></i> {{ $item['nama_periode'] }}
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['status'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border {{ $statusClass }}">
+                                        <i class="fas {{ $statusIcon }} mr-1"></i> {{ $statusText }}
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach

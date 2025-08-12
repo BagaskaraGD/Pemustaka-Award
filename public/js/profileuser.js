@@ -1,7 +1,9 @@
 let activeRewardsData = [];
 let currentPeriodeId = null;
 let userProfileData = null;
-const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+const apiBaseUrl = document
+    .querySelector('meta[name="api-base-url"]')
+    .getAttribute("content");
 const ICONS_HTML = {
     locked: '<i class="fas fa-lock"></i>',
     unlocked: '<i class="fas fa-unlock-alt"></i>',
@@ -10,7 +12,6 @@ const ICONS_HTML = {
 };
 
 document.addEventListener("DOMContentLoaded", async function () {
-    
     console.log("DOM Loaded. Starting profile user script.");
     await fetchInitialData();
     attachClaimButtonListeners();
@@ -26,6 +27,7 @@ async function fetchInitialData() {
         const rewardsResponse = await fetch(
             `${apiBaseUrl}/penerima-reward/rewards/active?id_civitas=${idCivitas}`
         );
+        console.log("Fetching active rewards from:", rewardsResponse.url);
         if (!rewardsResponse.ok) {
             console.error(
                 `Error fetching active rewards: ${
@@ -301,10 +303,16 @@ async function handleClaimReward(level) {
         }
         console.log("Parsed API result:", result);
 
+        // ... di dalam try block ...
         if (response.ok && result.success) {
-            showClaimNotificationModal(true, "Klaim Berhasil!", result.message);
+            // Buat pesan baru dengan nama reward dari variabel rewardToClaim
+            const successMessage = `Anda berhasil mendapatkan: ${rewardToClaim.bentuk_reward}. ${result.message}`;
+
+            showClaimNotificationModal(true, "Klaim Berhasil!", successMessage); // <--- Menampilkan pesan yang sudah dimodifikasi
+
             await fetchInitialData();
         } else {
+            // ...
             showClaimNotificationModal(
                 false,
                 "Klaim Gagal",

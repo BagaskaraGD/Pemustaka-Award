@@ -1,5 +1,8 @@
 @extends('layouts.app') {{-- Pastikan Anda memiliki layout bernama 'app' --}}
 
+{{-- PERBAIKAN: Pindahkan pernyataan 'use Carbon\Carbon;' ke bagian paling atas file Blade --}}
+<?php use Carbon\Carbon; ?>
+
 @section('content')
     {{-- Memuat file JavaScript eksternal --}}
     <script src="{{ asset('js/aksaramodal.js') }}"></script>
@@ -13,7 +16,7 @@
             <a href="/formaksaradinamika-mhs">
                 <div
                     class="w-12 h-12 rounded-full bg-[#1f4c6d] flex items-center justify-center
-                           transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg cursor-pointer">
+                                transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg cursor-pointer">
                     <i class="fa-solid fa-plus text-white text-xl"></i>
                 </div>
             </a>
@@ -46,6 +49,42 @@
                     </thead>
                     <tbody id="dataTable" class="bg-white divide-y divide-gray-100">
                         @foreach ($data as $item)
+                            <?php
+                            // Menggunakan Carbon untuk format tanggal yang lebih cantik
+                            $formattedDate = '';
+                            if (isset($item['tgl_konfirmasi'])) {
+                                try {
+                                    $carbonDate = Carbon::parse($item['tgl_konfirmasi']);
+                                    $formattedDate = $carbonDate->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
+                                } catch (\Exception $e) {
+                                    $formattedDate = $item['tgl_konfirmasi']; // Fallback jika parsing gagal
+                                }
+                            }
+                            
+                            // Tentukan warna dan ikon berdasarkan status
+                            $statusClass = '';
+                            $statusIcon = '';
+                            $statusText = strtoupper($item['status']); // Pastikan status dalam huruf besar untuk konsistensi
+                            
+                            switch (strtolower($item['status'])) {
+                                case 'menunggu':
+                                    $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                                    $statusIcon = 'fa-clock'; // Ikon jam
+                                    break;
+                                case 'diterima':
+                                    $statusClass = 'bg-green-100 text-green-800 border-green-200';
+                                    $statusIcon = 'fa-check-circle'; // Ikon centang
+                                    break;
+                                case 'ditolak':
+                                    $statusClass = 'bg-red-100 text-red-800 border-red-200';
+                                    $statusIcon = 'fa-times-circle'; // Ikon silang
+                                    break;
+                                default:
+                                    $statusClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                                    $statusIcon = 'fa-info-circle'; // Ikon info default
+                                    break;
+                            }
+                            ?>
                             <tr class="hover:bg-gray-50 cursor-pointer
                                   transition-all duration-300 ease-in-out hover:shadow-md hover:translate-y-[-2px]"
                                 onclick="openHistoryModal(
@@ -59,18 +98,28 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ $item['judul'] }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['tgl_review'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div class="flex items-center space-x-2 text-gray-600">
+                                        <i class="far fa-calendar-alt text-gray-500"></i>
+                                        <span>{{ $formattedDate }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['nama_periode'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700">
+                                        <i class="fas fa-calendar-check mr-1 text-gray-500"></i> {{ $item['nama_periode'] }}
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item['status'] }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border {{ $statusClass }}">
+                                        <i class="fas {{ $statusIcon }} mr-1"></i> {{ $statusText }}
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -119,7 +168,7 @@
                 </div>
             </div>
             <div class="mt-8 text-xl md:text-3xl font-extrabold text-gray-700 cursor-pointer
-                      transition-all duration-300 ease-in-out hover:text-blue-600 hover:scale-110"
+                            transition-all duration-300 ease-in-out hover:text-blue-600 hover:scale-110"
                 onclick="closeModal()">
                 ARE YOU READY TO PLAY?
             </div>
@@ -154,12 +203,12 @@
             <div class="mt-6 flex justify-center space-x-4">
                 <button onclick="closeDitolakModal()"
                     class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full
-                           transition duration-300 ease-in-out transform hover:scale-105">
+                                transition duration-300 ease-in-out transform hover:scale-105">
                     Tutup
                 </button>
                 <button id="perbaikiButton" onclick="handlePerbaikiClick()"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full
-                           transition duration-300 ease-in-out transform hover:scale-105 hidden">
+                                transition duration-300 ease-in-out transform hover:scale-105 hidden">
                     Perbaiki
                 </button>
             </div>

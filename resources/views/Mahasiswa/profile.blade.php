@@ -88,15 +88,15 @@
                     <div class="claim-button-wrapper absolute" style="left: 33.33%; transform: translateX(-50%);"><button
                             id="claim-button1" data-level="1"
                             class="claim-reward-button bg-[#1F4C6D] font-rubik text-white px-3 py-1 md:px-4 md:py-2 rounded-md text-xs md:text-base"
-                            style="display: none;">Klaim Lvl 1</button></div>
+                            style="display: none;">Klaim</button></div>
                     <div class="claim-button-wrapper absolute" style="left: 66.67%; transform: translateX(-50%);"><button
                             id="claim-button2" data-level="2"
                             class="claim-reward-button bg-[#1F4C6D] font-rubik text-white px-3 py-1 md:px-4 md:py-2 rounded-md text-xs md:text-base"
-                            style="display: none;">Klaim Lvl 2</button></div>
+                            style="display: none;">Klaim</button></div>
                     <div class="claim-button-wrapper absolute" style="left: 100%; transform: translateX(-50%);"><button
                             id="claim-button3" data-level="3"
                             class="claim-reward-button bg-[#1F4C6D] font-rubik text-white px-3 py-1 md:px-4 md:py-2 rounded-md text-xs md:text-base"
-                            style="display: none;">Klaim Lvl 3</button></div>
+                            style="display: none;">Klaim</button></div>
                 </div>
             </div>
         </div>
@@ -141,7 +141,7 @@
             justify-content: center;
             border: 2px solid white;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            z-index: 10;
+            z-index: 30;
             font-size: 12px;
         }
 
@@ -158,4 +158,19 @@
     </script>
     <script src="{{ asset('js/pencapaian.js') }}"></script>
     <script src="{{ asset('js/profileuser.js') }}"></script>
+
+    {{-- Modal Notifikasi Klaim --}}
+    <div id="claimNotifModal"
+        class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-out opacity-0 pointer-events-none hidden">
+        <div
+            class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center transform transition-all duration-300 ease-out scale-95 opacity-0">
+            <img id="claimNotifImage" src="" alt="Notifikasi" class="w-24 h-24 mx-auto mb-4">
+            <h3 id="claimNotifTitle" class="text-2xl font-bold mb-3"></h3>
+            <p id="claimNotifMessage" class="text-gray-600 mb-5"></p>
+            <button onclick="closeClaimNotifModal()"
+                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                OK
+            </button>
+        </div>
+    </div>
 @endsection
