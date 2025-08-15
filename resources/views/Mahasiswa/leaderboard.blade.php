@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+{{-- Sisipkan stylesheet khusus untuk halaman ini --}}
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/animasi-leaderboard.css') }}">
+@endpush
+
 @section('content')
     <main class="flex-1 p-1">
         <div class="flex justify-between items-center mb-4">
@@ -20,7 +25,7 @@
                 <div id="dropdown"
                     class="z-10 hidden bg-amber-50 divide-y divide-amber-50 rounded-lg shadow-lg w-48 absolute right-0 mt-2 border border-amber-50 p-2
                     transition-all duration-300 ease-out"
-                    {{-- HAPUS transform dan opacity-0 --}} style="--tw-shadow-color: white; --tw-shadow: var(--tw-shadow-colored);">
+                    style="--tw-shadow-color: white; --tw-shadow: var(--tw-shadow-colored);">
                     <ul id="periodeList" class="space-y-1" aria-labelledby="dropdownDefaultButton">
                         {{-- Konten akan diisi oleh periodedropdown.js --}}
                     </ul>
@@ -155,7 +160,8 @@
                             <th class="p-3 font-rubik text-left border-t border-gray-300">Profile</th>
                             <th class="p-3 font-rubik text-left border-t border-gray-300">Nama</th>
                             <th class="p-3 font-rubik text-left border-t border-gray-300">NIM</th>
-                            <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th> {{-- Diubah dari Email menjadi Status --}}
+                            <th class="p-3 font-rubik text-left border-t border-gray-300">Status</th>
+                            {{-- Diubah dari Email menjadi Status --}}
                             <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                         </tr>
                     </thead>

@@ -65,4 +65,55 @@
     </script>
     {{-- Memanggil file JavaScript --}}
     <script src="{{ asset('js/kehadiran.js') }}"></script>
+
+    {{-- Modal Notifikasi Error --}}
+    <div id="errorModal"
+        class="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-out opacity-0 pointer-events-none hidden">
+        <div
+            class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center transform transition-all duration-300 ease-out scale-95 opacity-0">
+            <img src="{{ asset('assets/images/failed.jpg') }}" alt="Notifikasi Gagal" class="w-24 h-24 mx-auto mb-4">
+            <h3 class="text-2xl font-bold mb-3 text-red-600">Gagal!</h3>
+            <p id="errorMessage" class="text-gray-600 mb-5"></p>
+            <button onclick="closeErrorModal()"
+                class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function openErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            const modal = document.getElementById('errorModal');
+            const modalContent = modal.querySelector('.bg-white');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+            requestAnimationFrame(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            });
+        }
+
+        function closeErrorModal() {
+            const modal = document.getElementById('errorModal');
+            const modalContent = modal.querySelector('.bg-white');
+
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                modal.classList.add('opacity-0', 'pointer-events-none', 'hidden');
+            }, 300);
+        }
+
+        @if (session('error_modal'))
+            document.addEventListener('DOMContentLoaded', function() {
+                openErrorModal("{{ session('error_modal') }}");
+            });
+        @endif
+
+        @if (session('success'))
+            // Anda bisa menambahkan modal sukses di sini jika mau
+            // alert("{{ session('success') }}");
+        @endif
+    </script>
 @endsection

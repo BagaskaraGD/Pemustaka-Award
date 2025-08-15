@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,37 +58,53 @@ class KegiatanController extends Controller
         }
 
         // Ambil semua jadwal dari API
-        $response = Http::get($this->baseUrl .'/jadwal-kegiatan');
+        $response = Http::get($this->baseUrl . '/jadwal-kegiatan');
         $data = $response->json();
 
         // Cari berdasarkan kode random
         $found = collect($data)->firstWhere('kode_random', $credentials['kode']);
         if (!$found) {
-            return redirect()->route($route)->with('error', 'Kode tidak valid');
+            return redirect()->route($route)->with('error_modal', 'Kode tidak valid');
         }
-        //dd($request->all());
-        $response = Http::get($this->baseUrl .'/hadir-kegiatan/check-kegiatan', [
+
+        // 2. Ambil data periode yang sedang aktif dari API
+        $periodResponse = Http::get($this->baseUrl . '/periode/status-terkini');
+        if (!$periodResponse->successful() || !isset($periodResponse->json()['periode'])) {
+            return redirect()->route($route)->with('error_modal', 'Gagal memverifikasi periode award saat ini.');
+        }
+        $periodData = $periodResponse->json()['periode'];
+        $tglMulaiPeriode = Carbon::parse($periodData['tgl_mulai']);
+        $tglSelesaiPeriode = Carbon::parse($periodData['tgl_selesai']);
+
+        // 3. Ambil tanggal kegiatan dari data jadwal yang ditemukan
+        $tglKegiatan = Carbon::parse($found['tgl_kegiatan']);
+
+        // 4. Validasi: Tolak jika tanggal kegiatan TIDAK berada dalam rentang periode aktif
+        if (!$tglKegiatan->between($tglMulaiPeriode, $tglSelesaiPeriode)) {
+            return redirect()->route($route)->with('error_modal', 'Kode presensi tidak valid untuk periode award saat ini.');
+        }
+
+        $response = Http::get($this->baseUrl . '/hadir-kegiatan/check-kegiatan', [
             'nim' => $civitas,
             'id_jadwal' => $found['id_jadwal'],
         ]);
         $sudahAbsen = $response->json()['exists'] ?? false;
 
         if ($sudahAbsen) {
-            return redirect()->route($route)->with('error', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');
+            return redirect()->route($route)->with('error_modal', 'Kode sudah pernah digunakan untuk absensi kegiatan ini');
         }
-
-        $response = Http::get($this->baseUrl .'/hadir-kegiatan/last-idhadir');
+        $response = Http::get($this->baseUrl . '/hadir-kegiatan/last-idhadir');
 
         $lastId = $response->json()['last_id'] ?? 0;
         $newId = $lastId + 1;
 
+
         // Kirim data ke API absensi
-        $response1 = Http::post($this->baseUrl .'/hadir-kegiatan', [
+        Http::post($this->baseUrl . '/hadir-kegiatan', [
             'id' => $newId,
             'id_jadwal' => $found['id_jadwal'],
             'nim' => $civitas,
         ]);
-        //return response($response1->json());
 
         return redirect()->route($route)->with('success', 'Kehadiran berhasil dicatat');
     }

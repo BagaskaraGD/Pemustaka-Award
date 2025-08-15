@@ -1,0 +1,24 @@
+/* Animasi Hover untuk Tabel My Ranking */
+#myRankingTableBody tr {
+    /* Menambahkan transisi yang mulus untuk semua properti */
+    transition: all 0.2s ease-in-out;
+    
+}
+
+#myRankingTableBody tr:hover {
+    /* Efek sedikit terangkat (zoom) */
+    /* transform: scale(1.001); */
+    background-color: darkslateblue;
+
+
+
+    /* Mengubah kursor untuk menandakan bisa diklik */
+    cursor: pointer;
+
+    /* Menambahkan bayangan untuk efek kedalaman */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+
+    /* Memastikan baris yang di-hover tampil di atas baris lain */
+    z-index: 10;
+    position: relative;
+}
