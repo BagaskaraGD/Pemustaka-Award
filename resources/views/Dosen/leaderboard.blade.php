@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/animasi-leaderboard.css') }}">
+@endpush
+
 @section('content')
     <main class="flex-1 p-1">
         <div class="flex justify-between items-center mb-4">
@@ -158,7 +162,7 @@
                         <th class="p-3 font-rubik text-center border-t border-gray-300">Points</th>
                     </tr>
                 </thead>
-                <tbody onclick="window.location.href='{{ route('profile1') }}'" id="myRankingTableBody">
+                <tbody onclick="window.location.href='{{ route('profile2') }}'" id="myRankingTableBody">
                 </tbody>
             </table>
             </div>

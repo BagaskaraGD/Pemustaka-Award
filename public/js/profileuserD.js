@@ -27,6 +27,7 @@ async function fetchInitialData() {
         const rewardsResponse = await fetch(
             `${apiBaseUrl}/penerima-reward/rewards/active?id_civitas=${idCivitas}`
         );
+        console.log("Fetching active rewards from:", rewardsResponse.url);
         if (!rewardsResponse.ok) {
             console.error(
                 `Error fetching active rewards: ${
@@ -210,8 +211,27 @@ function updateProgressAndClaimStates(userPointsStr) {
             markerIconEl.innerHTML = ICONS_HTML.locked;
         } else {
             if (rewardDetails) {
+                // ===============================================================
+                // PERUBAHAN UTAMA ADA DI SINI
+                // ===============================================================
                 if (rewardDetails.sudah_diklaim_user) {
-                    markerIconEl.innerHTML = ICONS_HTML.claimed;
+                    // Cek apakah id_penerima ada untuk membuat link
+                    if (rewardDetails.id_penerima) {
+                        const webBaseUrl =
+                            document.body.getAttribute("data-base-url") ||
+                            window.location.origin;
+                        const voucherUrl = `${webBaseUrl}/voucher/${rewardDetails.id_penerima}/pdf`;
+
+                        // Buat elemen <a> dan masukkan ikon ke dalamnya
+                        markerIconEl.innerHTML = `
+                            <a href="${voucherUrl}" target="_blank" title="Lihat Voucher Bukti Klaim">
+                                ${ICONS_HTML.claimed}
+                            </a>
+                        `;
+                    } else {
+                        // Fallback jika id_penerima tidak ada
+                        markerIconEl.innerHTML = ICONS_HTML.claimed;
+                    }
                 } else {
                     if (
                         parseInt(rewardDetails.claimed_slots) >=
@@ -219,8 +239,8 @@ function updateProgressAndClaimStates(userPointsStr) {
                     ) {
                         markerIconEl.innerHTML = ICONS_HTML.slotsFull;
                     } else {
-                        markerIconEl.innerHTML = ICONS_HTML.unlocked; // Gembok terbuka di marker
-                        claimButtonEl.style.display = "inline-block"; // Tampilkan tombol klaim di bawah
+                        markerIconEl.innerHTML = ICONS_HTML.unlocked;
+                        claimButtonEl.style.display = "inline-block";
                     }
                 }
             } else {

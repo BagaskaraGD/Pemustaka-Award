@@ -35,11 +35,12 @@ async function openHistoryModal(
     const perbaikiButton = document.getElementById("perbaikiButton");
     const reviewHistoryItems = document.getElementById("reviewHistoryItems");
 
+    // Atur variabel global
     currentIndukBuku = indukBuku;
     currentAksaraDinamikaId = aksaraDinamikaId;
     currentCivitasId = civitasId;
 
-    reviewHistoryItems.innerHTML = "";
+    reviewHistoryItems.innerHTML = ""; // Kosongkan riwayat sebelumnya
 
     let latestAdminKeterangan =
         adminKeterangan || "Tidak ada keterangan dari admin.";
@@ -59,18 +60,19 @@ async function openHistoryModal(
                 (a, b) => new Date(b.tgl_status) - new Date(a.tgl_status)
             );
 
+            // Cari keterangan penolakan terbaru untuk ditampilkan di atas
             const latestDitolakEntry = sortedHistory.find(
                 (entry) =>
                     entry.status.toLowerCase() === "ditolak" &&
                     entry.keterangan &&
-                    entry.keterangan.trim() !== "" &&
-                    entry.keterangan !== "Tidak ada keterangan dari admin."
+                    entry.keterangan.trim() !== ""
             );
 
             if (latestDitolakEntry) {
                 latestAdminKeterangan = latestDitolakEntry.keterangan;
             }
 
+            // Render setiap entri di timeline riwayat
             sortedHistory.forEach((entry) => {
                 const itemDiv = document.createElement("div");
                 itemDiv.classList.add("relative", "mb-4", "pb-4");
@@ -87,12 +89,12 @@ async function openHistoryModal(
                     "bg-white",
                     "z-10"
                 );
+
                 if (entry.status.toLowerCase() === "ditolak") {
                     dot.classList.add("border-red-500", "bg-red-200");
                 } else if (entry.status.toLowerCase() === "diterima") {
                     dot.classList.add("border-green-500", "bg-green-200");
                 } else {
-                    // Termasuk "menunggu"
                     dot.classList.add("border-gray-500", "bg-gray-200");
                 }
 
@@ -128,25 +130,32 @@ async function openHistoryModal(
                 contentDiv.appendChild(statusP);
                 contentDiv.appendChild(dateP);
 
-                if (
-                    entry.keterangan &&
-                    entry.keterangan.trim() !== "" &&
-                    entry.keterangan !== "Tidak ada keterangan dari admin."
-                ) {
+                // ===============================================================
+                // PERBAIKAN #1: Scroll untuk keterangan di dalam TIMELINE
+                // ===============================================================
+                if (entry.keterangan && entry.keterangan.trim() !== "") {
+                    const keteranganContainer = document.createElement("div");
+                    keteranganContainer.className =
+                        "mt-2 pt-2 border-t border-gray-200";
+
+                    const keteranganTitle = document.createElement("p");
+                    keteranganTitle.className =
+                        "text-sm text-gray-600 font-semibold mb-1";
+                    keteranganTitle.textContent = "Keterangan:";
+
+                    const scrollWrapper = document.createElement("div");
+                    scrollWrapper.className =
+                        "max-h-32 overflow-y-auto bg-white p-2 rounded shadow-inner border";
+
                     const keteranganP = document.createElement("p");
-                    keteranganP.classList.add(
-                        "text-base",
-                        "text-gray-800",
-                        "mt-2",
-                        "pt-2",
-                        "border-t",
-                        "border-gray-200"
-                    );
-                    if (entry.status.toLowerCase() === "ditolak" )
-                    {
-                        keteranganP.textContent = `Keterangan: ${entry.keterangan}`;
-                    }
-                    contentDiv.appendChild(keteranganP);
+                    keteranganP.className =
+                        "text-sm text-gray-800 whitespace-pre-wrap";
+                    keteranganP.textContent = entry.keterangan;
+
+                    scrollWrapper.appendChild(keteranganP);
+                    keteranganContainer.appendChild(keteranganTitle);
+                    keteranganContainer.appendChild(scrollWrapper);
+                    contentDiv.appendChild(keteranganContainer);
                 }
 
                 itemDiv.appendChild(dot);
@@ -154,23 +163,37 @@ async function openHistoryModal(
                 reviewHistoryItems.appendChild(itemDiv);
             });
         } else {
-            reviewHistoryItems.innerHTML +=
+            reviewHistoryItems.innerHTML =
                 '<p class="ml-0 text-gray-500">Tidak ada histori review untuk pengajuan ini.</p>';
         }
     } catch (error) {
         console.error("Gagal mengambil histori review:", error);
-        reviewHistoryItems.innerHTML +=
+        reviewHistoryItems.innerHTML =
             '<p class="ml-0 text-red-500">Gagal memuat histori review. Silakan coba lagi.</p>';
         latestAdminKeterangan = adminKeterangan || "Gagal memuat keterangan.";
     }
 
+    // Mengatur tampilan modal berdasarkan status
     if (status === "ditolak") {
         modalTitle.textContent = "Status Ditolak";
         modalTitle.className =
             "text-3xl font-extrabold text-red-600 mb-4 border-b-2 border-red-200 pb-2 text-center";
-        ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" ditolak. Mohon periksa kembali persyaratan atau hubungi admin.`;
+        ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" ditolak.`;
+
+        // ===============================================================
+        // PERBAIKAN #2: Scroll untuk keterangan UTAMA di atas
+        // ===============================================================
+        // Hapus konten lama dan buat ulang dengan struktur scroll
+        adminKeteranganContainer.innerHTML = `
+            <p class="text-sm text-red-800 font-semibold">Alasan Penolakan Terbaru:</p>
+            <div class="mt-2 max-h-40 overflow-y-auto bg-white p-2 rounded shadow-inner border">
+                <p id="adminKeterangan" class="text-sm text-gray-700 text-left whitespace-pre-wrap"></p>
+            </div>
+        `;
+        document.getElementById("adminKeterangan").textContent =
+            latestAdminKeterangan;
+
         adminKeteranganContainer.classList.remove("hidden");
-        adminKeteranganText.textContent = latestAdminKeterangan;
         perbaikiButton.classList.remove("hidden");
     } else if (status === "diterima") {
         modalTitle.textContent = "Status Diterima";
@@ -180,13 +203,12 @@ async function openHistoryModal(
         adminKeteranganContainer.classList.add("hidden");
         perbaikiButton.classList.add("hidden");
     } else if (status === "menunggu") {
-        // BLOK YANG DIUBAH ADA DI SINI
         modalTitle.textContent = "Status Menunggu";
         modalTitle.className =
             "text-3xl font-extrabold text-blue-600 mb-4 border-b-2 border-blue-200 pb-2 text-center";
         ditolakMessage.textContent = `Pengajuan Anda untuk buku "${judulBuku}" sedang dalam proses review.`;
-        adminKeteranganContainer.classList.add("hidden"); // Tidak ada keterangan admin untuk status menunggu
-        perbaikiButton.classList.add("hidden"); // Tidak ada tombol perbaiki untuk status menunggu
+        adminKeteranganContainer.classList.add("hidden");
+        perbaikiButton.classList.add("hidden");
     } else {
         console.warn("Status tidak diharapkan:", status);
         return;
@@ -200,36 +222,28 @@ function closeDitolakModal() {
 }
 
 function handlePerbaikiClick() {
-    if (
-        currentIndukBuku &&
-        currentCivitasId &&
-        currentAksaraDinamikaId &&
-        currentCivitasId.length == 11
-    ) {
-        window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
-    } else if (
-        currentIndukBuku &&
-        currentCivitasId &&
-        currentAksaraDinamikaId &&
-        currentCivitasId.length != 11
-    ) {
-        window.location.href = `/formaksaradinamika-dosen/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
+    if (currentIndukBuku && currentCivitasId && currentAksaraDinamikaId) {
+        if (currentCivitasId.length === 11) {
+            // Asumsi NIM memiliki panjang 11
+            window.location.href = `/formaksaradinamika-mhs/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
+        } else {
+            window.location.href = `/formaksaradinamika-dosen/edit/${currentAksaraDinamikaId}/${currentIndukBuku}/${currentCivitasId}`;
+        }
     } else {
         alert("Data ID tidak tersedia untuk perbaikan. Mohon refresh halaman.");
     }
 }
 
-// --- PAGINASI UNTUK TABEL AKSARA DINAMIKA ---
+// --- FUNGSI PAGINASI DAN FILTER (TIDAK PERLU DIUBAH) ---
 let aksaraCurrentPage = 1;
 const aksaraItemsPerPage = 7;
 let allAksaraDataRows = [];
 
 function renderAksaraTable(rowsToRender) {
     const tableBody = document.getElementById("dataTable");
-    if (!tableBody) return; // Pastikan tableBody ada
+    if (!tableBody) return;
 
     tableBody.innerHTML = "";
-
     const startIndex = (aksaraCurrentPage - 1) * aksaraItemsPerPage;
     const endIndex = startIndex + aksaraItemsPerPage;
     const paginatedRows = rowsToRender.slice(startIndex, endIndex);
@@ -259,7 +273,6 @@ function renderAksaraPaginationControls(totalItems) {
     paginationControls.innerHTML = "";
 
     const totalPages = Math.ceil(totalItems / aksaraItemsPerPage);
-
     if (totalPages <= 1) return;
 
     const createButton = (text, page, isDisabled = false) => {
@@ -280,18 +293,15 @@ function renderAksaraPaginationControls(totalItems) {
         }
         button.disabled = isDisabled;
         button.addEventListener("click", () => {
-            aksaraCurrentPage = page; // Set halaman baru
-
-            // Ambil term pencarian saat ini
+            aksaraCurrentPage = page;
             const currentSearchTerm = document
                 .getElementById("searchInput")
                 .value.toLowerCase();
-            // Filter ulang data berdasarkan term pencarian
             const currentlyFilteredRows = allAksaraDataRows.filter((row) => {
-                const textContent = row.textContent.toLowerCase();
-                return textContent.includes(currentSearchTerm);
+                return row.textContent
+                    .toLowerCase()
+                    .includes(currentSearchTerm);
             });
-            // Render tabel dengan data yang sudah difilter dan halaman yang baru
             renderAksaraTable(currentlyFilteredRows);
         });
         return button;
@@ -305,11 +315,9 @@ function renderAksaraPaginationControls(totalItems) {
         )
     );
 
-    // Logic to show pagination numbers
     const maxPagesToShow = 5;
-    let startPage = 1;
-    let endPage = totalPages;
-
+    let startPage = 1,
+        endPage = totalPages;
     if (totalPages > maxPagesToShow) {
         const halfPages = Math.floor(maxPagesToShow / 2);
         startPage = Math.max(aksaraCurrentPage - halfPages, 1);
@@ -321,12 +329,11 @@ function renderAksaraPaginationControls(totalItems) {
 
     if (startPage > 1) {
         paginationControls.appendChild(createButton("1", 1));
-        if (startPage > 2) {
-            const ellipsis = document.createElement("span");
-            ellipsis.textContent = "...";
-            ellipsis.className = "px-3 py-1 mx-1 text-sm";
-            paginationControls.appendChild(ellipsis);
-        }
+        if (startPage > 2)
+            paginationControls.insertAdjacentHTML(
+                "beforeend",
+                '<span class="px-3 py-1 mx-1 text-sm">...</span>'
+            );
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -334,12 +341,11 @@ function renderAksaraPaginationControls(totalItems) {
     }
 
     if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement("span");
-            ellipsis.textContent = "...";
-            ellipsis.className = "px-3 py-1 mx-1 text-sm";
-            paginationControls.appendChild(ellipsis);
-        }
+        if (endPage < totalPages - 1)
+            paginationControls.insertAdjacentHTML(
+                "beforeend",
+                '<span class="px-3 py-1 mx-1 text-sm">...</span>'
+            );
         paginationControls.appendChild(
             createButton(totalPages.toString(), totalPages)
         );
@@ -354,46 +360,37 @@ function renderAksaraPaginationControls(totalItems) {
     );
 }
 
-// Fungsi filterTable hanya untuk menangani perubahan pada input search
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
     const filteredRows = allAksaraDataRows.filter((row) => {
-        const text = row.textContent.toLowerCase();
-        return text.includes(input);
+        return row.textContent.toLowerCase().includes(input);
     });
-    aksaraCurrentPage = 1; // Reset ke halaman pertama SETIAP KALI filter/pencarian baru
+    aksaraCurrentPage = 1;
     renderAksaraTable(filteredRows);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("dataTable");
     if (tableBody) {
-        // Simpan semua baris dari HTML asli
         allAksaraDataRows = Array.from(tableBody.querySelectorAll("tr"));
-
-        // Cek jika div paginasi sudah ada, jika tidak, buat dan tambahkan
         let paginationDiv = document.getElementById("aksaraTablePagination");
         if (!paginationDiv) {
             paginationDiv = document.createElement("div");
             paginationDiv.id = "aksaraTablePagination";
             paginationDiv.className =
-                "flex justify-center items-center flex-wrap space-x-1 mt-4"; // flex-wrap untuk mobile
+                "flex justify-center items-center flex-wrap space-x-1 mt-4";
             const tableContainer = tableBody.closest(".overflow-x-auto");
             if (tableContainer && tableContainer.parentNode) {
-                // Letakkan setelah container tabel
                 tableContainer.parentNode.insertBefore(
                     paginationDiv,
                     tableContainer.nextSibling
                 );
             } else {
-                // Fallback jika struktur tidak seperti yang diharapkan
                 tableBody.insertAdjacentElement("afterend", paginationDiv);
             }
         }
-        // Render tabel dan paginasi untuk pertama kali
         filterTable();
     }
-
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         searchInput.addEventListener("input", filterTable);
